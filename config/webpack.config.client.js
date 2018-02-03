@@ -1,6 +1,7 @@
 const path = require("path");
 const HtmlWebpackPlugin = require( 'html-webpack-plugin' );
 const CLeanWebpackPlugin = require( 'clean-webpack-plugin' );
+const webpack = require( 'webpack' );
 
 
 // 判断是否为开发环境
@@ -13,7 +14,7 @@ const SRC_PATH = path.resolve( 'src' );
 // 打包后的输出文件存放目录
 const BUILD_PATH = path.resolve( 'build' );
 
-// 线上资源根目录 命名一般为 public static assets
+// 线上资源根目录 命名一般为 public static assets  / 必须存在 否则 hmr 将失效
 const ASSETS_PATH = '/assets/';
 
 
@@ -66,11 +67,17 @@ const config = {
 // dev-server 打包后的文件hash 和 已经存在的打包目录中的文件 hash 将不一致 将会导致 404 错误
 // 所以在开发环境下应该删除打包目录文件夹
 if ( isDev ) {
+	config.entry = {
+		app: [
+			'react-hot-loader/patch',
+			SRC_PATH + '/app.js'
+		]
+	};
 	config.devServer = {
 		host: '0.0.0.0',
 		port: '8080',
 		contentBase: BUILD_PATH,
-		// hot: true,
+		hot: true,
 		overlay: {
 			errors: true
 		},
@@ -79,6 +86,8 @@ if ( isDev ) {
 			index: ASSETS_PATH + 'index.html'
 		}
 	}
+	config.plugins.push( new webpack.NamedModulesPlugin() );
+	config.plugins.push( new webpack.HotModuleReplacementPlugin() );
 }
 
 
