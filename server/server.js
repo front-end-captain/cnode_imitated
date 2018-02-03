@@ -11,8 +11,7 @@ app.use( '/assets', express.static( path.resolve( __dirname, './../build' ) ) );
 
 app.get( '*', function( request, response ) {
 	const appString = ReactSSR.renderToString( serverEntry );
-
-	response.send( template.replace( '<app></app>', appString ) );
+	response.send( template.replace( '<!-- app -->', appString ) );
 })
 
 app.listen( 3000, () => {
