@@ -8,7 +8,9 @@
     "build:server": "cross-env NODE_ENV=development webpack --config config/webpack.config.server.js",
     "dev:client": "cross-env NODE_ENV=development webpack-dev-server --config config/webpack.config.client.js",
     "dev:server": "cross-env NODE_ENV=development node server/server.js",
-    "build": "npm run build:client && npm run build:server"
+    "build": "npm run build:client && npm run build:server",
+    "lint": "eslint --ext .js,.jsx src",
+    "percommit": "npm run lint"
   },
   "repository": {
     "type": "git",
@@ -22,6 +24,7 @@
   },
   "homepage": "https://github.com/front-end-captain/cnode_imitated#readme",
   "dependencies": {
+    "babel-eslint": "^8.2.1",
     "clean-webpack-plugin": "^0.1.18",
     "cross-env": "^5.1.3",
     "express": "^4.16.2",
@@ -36,7 +39,18 @@
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
     "babel-preset-react-app": "^3.1.1",
+    "eslint": "^4.17.0",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-config-standard": "^11.0.0-beta.0",
+    "eslint-loader": "^1.9.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-node": "^5.2.1",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-react": "^7.6.1",
+    "eslint-plugin-standard": "^3.0.1",
     "http-proxy-middleware": "^0.17.4",
+    "husky": "^0.14.3",
     "memory-fs": "^0.4.1",
     "webpack-dev-server": "^2.11.1"
   }

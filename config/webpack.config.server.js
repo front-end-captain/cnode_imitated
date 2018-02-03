@@ -37,6 +37,12 @@ module.exports = {
 	module: {
 		rules: [
 			{
+        test: /\.(js|jsx)$/,
+        enforce: 'pre',
+				loader: require.resolve('eslint-loader'),
+        include: SRC_PATH,
+      },
+			{
 				test: /\.jsx?$/,
 				exclude: /node_modules/,
 				loader: require.resolve( 'babel-loader' ),
