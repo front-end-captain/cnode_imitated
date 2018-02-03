@@ -10,7 +10,7 @@
     "dev:server": "cross-env NODE_ENV=development node server/server.js",
     "build": "npm run build:client && npm run build:server",
     "lint": "eslint --ext .js,.jsx src",
-    "percommit": "npm run lint"
+    "precommit": "npm run lint"
   },
   "repository": {
     "type": "git",
