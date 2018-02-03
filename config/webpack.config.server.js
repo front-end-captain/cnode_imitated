@@ -30,7 +30,7 @@ module.exports = {
 		// publicPath: '/assets/'     // 放到制定目录下
 		// publicPath: ''             // 放到根目录下
 		// publicPath: 'https://cdn.example.com'  // 放到 cdn 上
-		publicPath: './',
+		publicPath: ASSETS_PATH,
 		libraryTarget: "commonjs2"
 	},
 

@@ -31,7 +31,7 @@ module.exports = {
 		// publicPath: '/assets/'     // 放到制定目录下
 		// publicPath: ''             // 放到根目录下
 		// publicPath: 'https://cdn.example.com'  // 放到 cdn 上
-		publicPath: "./"
+		publicPath: ASSETS_PATH
 	},
 
 	module: {
@@ -48,7 +48,9 @@ module.exports = {
 	},
 
 	plugins: [
-		new HtmlWebpackPlugin(),
-		new CLeanWebpackPlugin( ['build'] )
+		new CLeanWebpackPlugin( ['build'] ),
+		new HtmlWebpackPlugin({
+			template: path.resolve( __dirname, './../src/template.html' )
+		})
 	]
 };
