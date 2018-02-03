@@ -1,4 +1,6 @@
 const path = require("path");
+const HtmlWebpackPlugin = require( 'html-webpack-plugin' );
+const CLeanWebpackPlugin = require( 'clean-webpack-plugin' );
 
 // 源代码根目录
 const SRC_PATH = path.resolve( 'src' );
@@ -18,7 +20,7 @@ module.exports = {
 
 	// 打包输出文件
 	output: {
-		
+
 		// 输出文件存放目录 绝对路径
 		path: BUILD_PATH,
 
@@ -29,6 +31,24 @@ module.exports = {
 		// publicPath: '/assets/'     // 放到制定目录下
 		// publicPath: ''             // 放到根目录下
 		// publicPath: 'https://cdn.example.com'  // 放到 cdn 上
-		publicPath: ASSETS_PATH
-	}
+		publicPath: "./"
+	},
+
+	module: {
+		rules: [
+			{
+				test: /\.jsx?$/,
+				exclude: /node_modules/,
+				loader: require.resolve( 'babel-loader' ),
+				options: {
+					cacheDirectory: true,
+				}
+			}
+		]
+	},
+
+	plugins: [
+		new HtmlWebpackPlugin(),
+		new CLeanWebpackPlugin( ['build'] )
+	]
 };
