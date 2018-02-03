@@ -7,8 +7,8 @@
     "build:client": "cross-env NODE_ENV=development webpack --config config/webpack.config.client.js",
     "build:server": "cross-env NODE_ENV=development webpack --config config/webpack.config.server.js",
     "dev:client": "cross-env NODE_ENV=development webpack-dev-server --config config/webpack.config.client.js",
-    "build": "npm run build:client && npm run build:server",
-    "start": "node server/server.js"
+    "dev:server": "cross-env NODE_ENV=development node server/server.js",
+    "build": "npm run build:client && npm run build:server"
   },
   "repository": {
     "type": "git",
@@ -32,9 +32,12 @@
     "webpack": "^3.10.0"
   },
   "devDependencies": {
+    "axios": "^0.17.1",
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
     "babel-preset-react-app": "^3.1.1",
+    "http-proxy-middleware": "^0.17.4",
+    "memory-fs": "^0.4.1",
     "webpack-dev-server": "^2.11.1"
   }
 }
