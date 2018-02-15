@@ -1,6 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import {
+	BrowserRouter as Router,
+} from 'react-router-dom';
 import { AppContainer } from 'react-hot-loader';
+import { Provider } from 'mobx-react';
+import appState from './store/appState.js';
 
 import App from './App.jsx';
 
@@ -10,7 +15,11 @@ const root = document.getElementById( 'root' );
 const render = ( Component ) => {
   ReactDOM.hydrate(
     <AppContainer>
-      <Component />
+			<Provider appState={ appState }>
+				<Router>
+					<Component />
+				</Router>
+			</Provider>
     </AppContainer>,
     root,
   );

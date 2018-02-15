@@ -19,6 +19,7 @@ const ASSETS_PATH = '/assets/';
 
 
 const config = {
+	devtool: 'source-map',
 	// 依赖入口文件
 	entry: {
 		app: SRC_PATH + '/app.js'
@@ -62,8 +63,13 @@ const config = {
 	plugins: [
 		new CLeanWebpackPlugin( ['build'] ),
 		new HtmlWebpackPlugin({
+			title: 'cnode',
 			template: path.resolve( __dirname, './../src/template.html' ),
 			favicon: path.resolve(__dirname, './../cnode.ico')
+		}),
+		new webpack.optimize.CommonsChunkPlugin({
+			name: 'common-chunk',
+			minChunks: Infinity
 		})
 	]
 };

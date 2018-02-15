@@ -3,7 +3,8 @@ const fs = require( 'fs' );
 const path = require( 'path' );
 const ReactSSR = require( 'react-dom/server' );
 const favicon = require('serve-favicon');
-
+const bodyParser = require('body-parser');
+const session = require('express-session');
 const PORT = 3000;
 
 const isDev = process.env.NODE_ENV === 'development';
@@ -11,7 +12,19 @@ const isDev = process.env.NODE_ENV === 'development';
 
 const app = express();
 
+app.use( bodyParser.json() );
+app.use( bodyParser.urlencoded({ extended: false }));
+app.use( session({
+	maxAge: 10 * 60 * 1000,
+	name: 'tid',
+	resave: false,
+	saveUninitialized: false,
+	secret: 'react_cnode'
+}));
 app.use( favicon( path.resolve(__dirname, './../cnode.ico')));
+
+app.use('/api/user', require('./utils/handle-login'));
+app.use('/api', require('./utils/proxy'));
 
 
 // 在非开发环境下 build 目录下才存在服务端要直出的资源（bundle）文件 即生产环境下的服务端渲染（npm run build）
