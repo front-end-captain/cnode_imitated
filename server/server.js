@@ -12,6 +12,11 @@ const isDev = process.env.NODE_ENV === 'development';
 
 const app = express();
 
+app.use( function ( request, response, next ) {
+	console.log( "The request type is " + request.method + "; request url is " + request.originalUrl );
+	next();
+});
+
 app.use( bodyParser.json() );
 app.use( bodyParser.urlencoded({ extended: false }));
 app.use( session({

@@ -24,7 +24,7 @@ router.use( '/login', ( request, response, next ) => {
 		if ( error.response ) {
 			response.json({
 				success: false,
-				data: error.response
+				data: error.response.data
 			})
 		} else {
 			naxt( error );

@@ -97,6 +97,9 @@ if ( isDev ) {
 		publicPath: ASSETS_PATH,
 		historyApiFallback: {
 			index: ASSETS_PATH + 'index.html'
+		},
+		proxy: {
+			'/api': 'http://localhost:3000'
 		}
 	}
 	config.plugins.push( new webpack.NamedModulesPlugin() );
