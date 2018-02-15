@@ -2,6 +2,7 @@ const express = require( 'express' );
 const fs = require( 'fs' );
 const path = require( 'path' );
 const ReactSSR = require( 'react-dom/server' );
+const favicon = require('serve-favicon');
 
 const PORT = 3000;
 
@@ -9,6 +10,8 @@ const isDev = process.env.NODE_ENV === 'development';
 
 
 const app = express();
+
+app.use( favicon( path.resolve(__dirname, './../cnode.ico')));
 
 
 // 在非开发环境下 build 目录下才存在服务端要直出的资源（bundle）文件 即生产环境下的服务端渲染（npm run build）
