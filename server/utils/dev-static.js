@@ -12,6 +12,7 @@ const Proxy = require( 'http-proxy-middleware' );
 const asyncBootstrapper = require('react-async-bootstrapper').default;
 const ejs = require('ejs');
 const serialize = require('serialize-javascript');
+const Helmet = require('react-helmet').default;
 
 // 获取在硬盘上的 html 模板文件 在 npm run dev:client 之后
 // 通过 http 请求的方式请求 webpack-dev-server 拿到 template.html
@@ -30,6 +31,22 @@ const getStoreState = ( stores ) => {
 		result[storeName] = stores[storeName].toJson();
 		return result;
 	}, {});
+}
+
+
+const NativeModule = require('module');
+const vm = require('vm');
+
+const getModuleFromString = ( bundle, filename ) => {
+	const m =  { exports: {} };
+	const wrapper = NativeModule.wrap( bundle );
+	const script = new vm.Script( wrapper, {
+		filename: filename,
+		displayErrors: true,
+	});
+	const result = script.runInThisContext();
+	result.call( m.exports, m.exports, require, m );
+	return m;
 }
 
 const mfs = new MemoryFS();
@@ -66,10 +83,7 @@ serverCompiler.watch({}, ( error, stats ) => {
 	// 此时输出的 bundle 为字符串
 	const bundle = mfs.readFileSync( bundlePath, 'utf-8' );
 
-	const m = new Module();
-
-	// 编译为一个模块 必须制定模块名称
-	m._compile( bundle, 'server-entry.js' );
+	const m = getModuleFromString( bundle, 'server-entry.js' );
 
 	serverBundle = m.exports.default;
 	createStoreMap = m.exports.createStoreMap;
@@ -96,12 +110,17 @@ module.exports = ( app ) => {
 					response.end();
 					return;
 				}
+				const helmet = Helmet.rewind();
 				const state = getStoreState( stores );
 				const content = ReactDOMServer.renderToString( app );
 
 				const html = ejs.render( template, {
 					appString: content,
 					initialState: serialize( state ),
+					meta: helmet.meta.toString(),
+					title: helmet.title.toString(),
+					style: helmet.style.toString(),
+					link: helmet.link.toString(),
 				})
 				response.send( html );
 			})

@@ -4,6 +4,7 @@ import {
 	inject,
 } from 'mobx-react';
 import PropTypes from 'prop-types';
+import { Helmet } from 'react-helmet';
 import AppStateClass from './../../store/appState.js';
 
 
@@ -29,12 +30,15 @@ class TopicList extends Component {
 
 	handleChange( event ) {
 		this.props.appState.changeName( event.target.value );
-	}
+	}x
 
 	render() {
-		console.log( this.props.appState );
 		return (
 			<div>
+				<Helmet>
+					<title>cnode</title>
+					<meta name="description" content="this is description"/>
+				</Helmet>
 				<input type="text" onChange={ this.handleChange }/>
 				<div>this is TopicList page { this.props.appState.count } { this.props.appState.name }</div>
 			</div>
