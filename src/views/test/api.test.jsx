@@ -1,5 +1,16 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import styled from 'styled-components';
+
+
+const Button = styled.button`
+	width: 100px;
+	height: 30px;
+	background-color: lightblue;
+	border-radius: 10px;
+	outline: none;
+	color: ${(props) => { return props.primary ? 'blue' : 'white'; }};
+`;
 
 
 class ApiTest extends Component {
@@ -39,9 +50,9 @@ class ApiTest extends Component {
 	render() {
 		return (
 			<div>
-				<button onClick={ this.getTopics }>topics</button>
-				<button onClick={ this.login }>login</button>
-				<button onClick={ this.markall }>markall</button>
+				<Button onClick={ this.getTopics }>topics</Button>
+				<Button onClick={ this.login }>login</Button>
+				<Button onClick={ this.markall }>markall</Button>
 			</div>
 		);
 	}

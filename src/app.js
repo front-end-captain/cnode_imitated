@@ -15,7 +15,11 @@ const root = document.getElementById( 'root' );
 
 // 使用 hydrate  Warning: Expected server HTML to contain a matching <div> in <div>.
 const render = ( Component ) => {
-  ReactDOM.hydrate(
+
+	// 对 HMR 进行判断 否则会在客户端报出警告
+	// Warning: Expected server HTML to contain a matching <div> in <div>
+	const renderMethod = module.hot ? ReactDOM.render : ReactDOM.hydrate;
+  renderMethod(
     <AppContainer>
 			<Provider appState={ new AppStateClass( initialState.appState ) }>
 				<Router>

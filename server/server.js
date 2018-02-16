@@ -1,10 +1,10 @@
 const express = require( 'express' );
 const fs = require( 'fs' );
 const path = require( 'path' );
-const ReactSSR = require( 'react-dom/server' );
 const favicon = require('serve-favicon');
 const bodyParser = require('body-parser');
 const session = require('express-session');
+const serverRender = require('./utils/serverRender.js');
 const PORT = 3000;
 
 const isDev = process.env.NODE_ENV === 'development';
@@ -35,14 +35,13 @@ app.use('/api', require('./utils/proxy'));
 // 在非开发环境下 build 目录下才存在服务端要直出的资源（bundle）文件 即生产环境下的服务端渲染（npm run build）
 if ( !isDev ) {
 
-	const serverEntry = require( './../build/server-entry' ).default;
+	const serverEntry = require( './../build/server-entry' );
 
-	const template = fs.readFileSync( path.resolve( __dirname, './../build/index.html' ), 'utf8' );
+	const template = fs.readFileSync( path.resolve( __dirname, './../build/server.ejs' ), 'utf8' );
 	app.use( '/assets', express.static( path.resolve( __dirname, './../build' ) ) );
 
-	app.get( '*', function( request, response ) {
-		const appString = ReactSSR.renderToString( serverEntry );
-		response.send( template.replace( '<!-- app -->', appString ) );
+	app.get( '*', function( request, response, next ) {
+		serverRender( serverEntry, template, request, response ).catch( next );
 	})
 }
 
@@ -51,6 +50,11 @@ else {
 	const devStatic = require( './utils/dev-static.js' );
 	devStatic( app );
 }
+
+app.use( ( error, request, response, next ) => {
+	console.log( error );
+	response.status(500).send( error );
+})
 
 
 const server = app.listen( PORT, "localhost", function () {

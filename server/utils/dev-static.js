@@ -7,12 +7,9 @@ const axios = require( 'axios' );
 const webpack = require( 'webpack' );
 const serverConfig = require( './../../config/webpack.config.server.js' );
 const MemoryFS = require( 'memory-fs' );
-const ReactDOMServer = require( 'react-dom/server' );
 const Proxy = require( 'http-proxy-middleware' );
-const asyncBootstrapper = require('react-async-bootstrapper').default;
-const ejs = require('ejs');
-const serialize = require('serialize-javascript');
-const Helmet = require('react-helmet').default;
+const serverRender = require('./serverRender.js');
+
 
 // 获取在硬盘上的 html 模板文件 在 npm run dev:client 之后
 // 通过 http 请求的方式请求 webpack-dev-server 拿到 template.html
@@ -26,12 +23,6 @@ const getTemplate = () => {
 	})
 }
 
-const getStoreState = ( stores ) => {
-	return Object.keys( stores ).reduce( ( result, storeName ) => {
-		result[storeName] = stores[storeName].toJson();
-		return result;
-	}, {});
-}
 
 
 const NativeModule = require('module');
@@ -54,7 +45,6 @@ const mfs = new MemoryFS();
 const Module = module.constructor;
 
 let serverBundle = null;
-let createStoreMap = null;
 
 
 // serverCompiler 将会监听 server-entry 的依赖变化
@@ -68,6 +58,7 @@ serverCompiler.outputFileSystem = mfs;
 //
 serverCompiler.watch({}, ( error, stats ) => {
 	if ( error || stats.hasErrors() ) {
+		console.log( stats );
 		throw error;
 	}
 
@@ -85,8 +76,7 @@ serverCompiler.watch({}, ( error, stats ) => {
 
 	const m = getModuleFromString( bundle, 'server-entry.js' );
 
-	serverBundle = m.exports.default;
-	createStoreMap = m.exports.createStoreMap;
+	serverBundle = m.exports;
 })
 
 module.exports = ( app ) => {
@@ -96,34 +86,12 @@ module.exports = ( app ) => {
 		target: 'http://localhost:8080'
 	}))
 
-	app.get( '*', ( request, response ) => {
+	app.get( '*', ( request, response, next ) => {
+		if ( !serverBundle ) {
+			return response.send('waiting for serverbundle...');
+		}
 		getTemplate().then( template => {
-
-			let routerContext = {};
-
-			let stores = createStoreMap();
-			const app = serverBundle( stores, routerContext, request.url );
-
-			asyncBootstrapper( app ).then( () => {
-				if ( routerContext.url ) {
-					response.status( 302 ).setHeader("Location", routerContext.url );
-					response.end();
-					return;
-				}
-				const helmet = Helmet.rewind();
-				const state = getStoreState( stores );
-				const content = ReactDOMServer.renderToString( app );
-
-				const html = ejs.render( template, {
-					appString: content,
-					initialState: serialize( state ),
-					meta: helmet.meta.toString(),
-					title: helmet.title.toString(),
-					style: helmet.style.toString(),
-					link: helmet.link.toString(),
-				})
-				response.send( html );
-			})
-		})
+			return serverRender( serverBundle, template, request, response );
+		}).catch( next )
 	})
 }

@@ -26,7 +26,7 @@ module.exports = ( request, response, next ) => {
 		method: request.method,
 		params: query,
 		data: queryString.stringify( Object.assign({}, request.body, {
-			accessToken: ( needAccessToken && request.method === 'GET' ) ? user.accessToken : ''
+			accesstoken: ( needAccessToken && request.method === 'POST' ) ? user.accessToken : ''
 		})),
 		headers: {
 			"Content-Type": "application/x-www-form-urlencoded"
