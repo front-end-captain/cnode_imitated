@@ -67,6 +67,10 @@ const config = {
 			template: path.resolve( __dirname, './../src/template.html' ),
 			favicon: path.resolve(__dirname, './../cnode.ico')
 		}),
+		new HtmlWebpackPlugin({
+			template: "!!ejs-compiled-loader!"  + path.resolve( __dirname, './../src/server.template.ejs' ),
+			filename: 'server.ejs'
+		}),
 		new webpack.optimize.CommonsChunkPlugin({
 			name: 'common-chunk',
 			minChunks: Infinity

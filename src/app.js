@@ -5,9 +5,11 @@ import {
 } from 'react-router-dom';
 import { AppContainer } from 'react-hot-loader';
 import { Provider } from 'mobx-react';
-import appState from './store/appState.js';
+import AppStateClass from './store/appState.js';
 
 import App from './App.jsx';
+
+const initialState = window.__INITIAL__STATE__ || {}; // eslint-disable-line
 
 const root = document.getElementById( 'root' );
 
@@ -15,7 +17,7 @@ const root = document.getElementById( 'root' );
 const render = ( Component ) => {
   ReactDOM.hydrate(
     <AppContainer>
-			<Provider appState={ appState }>
+			<Provider appState={ new AppStateClass( initialState.appState ) }>
 				<Router>
 					<Component />
 				</Router>
