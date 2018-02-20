@@ -51,6 +51,14 @@ module.exports = {
 				options: {
 					cacheDirectory: true,
 				}
+			},
+			{
+				test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
+        loader: 'url-loader',
+        options: {
+          limit: 10000,
+          name: '[name].[hash:7].[ext]'
+        }
 			}
 		]
 	}

@@ -12,7 +12,7 @@ const serverRender = require('./serverRender.js');
 
 
 // 获取在硬盘上的 html 模板文件 在 npm run dev:client 之后
-// 通过 http 请求的方式请求 webpack-dev-server 拿到 template.html
+// 通过 http 请求的方式请求 webpack-dev-server 拿到 server.ejs
 const getTemplate = () => {
 	return new Promise( ( resolve, reject ) => {
 		axios.get( 'http://localhost:8080/assets/server.ejs' )
@@ -57,8 +57,7 @@ serverCompiler.outputFileSystem = mfs;
 
 //
 serverCompiler.watch({}, ( error, stats ) => {
-	if ( error || stats.hasErrors() ) {
-		console.log( stats );
+	if ( error ) {
 		throw error;
 	}
 

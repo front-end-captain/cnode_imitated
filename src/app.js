@@ -4,12 +4,18 @@ import {
 	BrowserRouter as Router,
 } from 'react-router-dom';
 import { AppContainer } from 'react-hot-loader';
-import { Provider } from 'mobx-react';
-import AppStateClass from './store/appState.js';
+import { composeWithDevTools } from 'redux-devtools-extension';
+import { createStore, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
+import { Provider } from 'react-redux';
+import reducer from './store/index.js';
 
 import App from './App.jsx';
+import './common/style/index.css';
 
-const initialState = window.__INITIAL__STATE__ || {}; // eslint-disable-line
+const initialState = window.__INITIAL__STATE__ || {};
+
+const store = createStore(reducer, initialState, composeWithDevTools(applyMiddleware( thunk )));
 
 const root = document.getElementById( 'root' );
 
@@ -21,7 +27,7 @@ const render = ( Component ) => {
 	const renderMethod = module.hot ? ReactDOM.render : ReactDOM.hydrate;
   renderMethod(
     <AppContainer>
-			<Provider appState={ new AppStateClass( initialState.appState ) }>
+			<Provider store={ store }>
 				<Router>
 					<Component />
 				</Router>

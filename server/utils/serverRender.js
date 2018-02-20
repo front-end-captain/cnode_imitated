@@ -3,23 +3,16 @@ const asyncBootstrapper = require('react-async-bootstrapper').default;
 const ejs = require('ejs');
 const serialize = require('serialize-javascript');
 const Helmet = require('react-helmet').default;
-
-const getStoreState = ( stores ) => {
-	return Object.keys( stores ).reduce( ( result, storeName ) => {
-		result[storeName] = stores[storeName].toJson();
-		return result;
-	}, {});
-}
+const createStore = require('redux').createStore;
 
 
 module.exports = (bundle, template, request, response) => {
 	return new Promise((resolve, reject) => {
-		const createStoreMap = bundle.createStoreMap;
 		const createApp = bundle.default;
 		let routerContext = {};
 
-		let stores = createStoreMap();
-		const app = createApp(stores, routerContext, request.url);
+		let store = createStore(bundle.rootReducer);
+		const app = createApp(store, routerContext, request.url);
 
 		asyncBootstrapper(app).then(() => {
 			if (routerContext.url) {
@@ -28,7 +21,7 @@ module.exports = (bundle, template, request, response) => {
 				return;
 			}
 			const helmet = Helmet.rewind();
-			const state = getStoreState(stores);
+			const state = store.getState();
 			const content = ReactDOMServer.renderToString(app);
 
 			const html = ejs.render(template, {

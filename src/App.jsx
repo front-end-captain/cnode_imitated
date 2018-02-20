@@ -1,21 +1,38 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
-import Routes from './config/router.jsx';
+import { Switch, Route, Redirect } from 'react-router-dom';
+
+import TopicList from './views/TopicList/topic_list.jsx';
+import TopicDetail from './views/TopicDetail/topic_detail.jsx';
+import ApiTest from './views/test/api.test.jsx';
+import Header from './components/Header/header.jsx';
 
 class App extends Component {
+	constructor() {
+		super();
+		this.state = { hasError: false };
+	}
   componentDidMount() {
 		// do something
 	}
+	componentDidCatch( error, info ) {
+		if ( error ) {
+			console.log( error, info );
+			this.setState({ hasError: true });
+		}
+	}
   render() {
-    return (
-			<div>
-				<div>
-					<Link to="/">首页</Link>
-					<Link to="/detail">详情页</Link>
-				</div>
-				<Routes />
-			</div>
-		);
+		const { hasError } = this.state;
+		return hasError
+			? <div>404 error</div>
+			: [
+				<Header key="header" />,
+				<Switch key="switch">
+					<Route path="/" exact render={ () => <Redirect to="/list" />} />
+					<Route path="/list" component={ TopicList } />
+					<Route path="/detail/:id" component={ TopicDetail } />
+					<Route path="/test" component={ ApiTest } />
+				</Switch>,
+			];
   }
 }
 

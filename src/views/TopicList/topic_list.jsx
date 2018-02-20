@@ -1,53 +1,38 @@
-import React, { Component } from 'react';
-import {
-	observer,
-	inject,
-} from 'mobx-react';
-import PropTypes from 'prop-types';
-import { Helmet } from 'react-helmet';
-import AppStateClass from './../../store/appState.js';
+import React from 'react';
+import styled from 'styled-components';
+import { Switch, Route, Redirect } from 'react-router-dom';
+
+import Tab from './../../components/Tab/tab.jsx';
+import TopicListAll from './../TopicListAll/topiclist_all.jsx';
+import TopicListGood from './../TopicListGood/topiclist_good.jsx';
+import TopicListShare from './../TopicListShare/topiclist_share.jsx';
+import TopicListAsk from './../TopicListAsk/topiclist_ask.jsx';
+import TopicListJob from './../TopicListJob/topiclist_job.jsx';
 
 
-@inject('appState') @observer
-class TopicList extends Component {
-	constructor() {
-		super();
-		this.handleChange = this.handleChange.bind( this );
-	}
+const TopicListSection = styled.div`
+	width: 90%;
+	min-height: 300px;
+	margin: 10px auto;
+	border-radius: 10px;
+	background-color: #fff;
+`;
 
-	componentDidMount() {
-		// do something
-	}
-
-	asyncBootstrap() {
-		return new Promise( ( resolve ) => {
-			setTimeout( () => {
-				this.props.appState.count = 3;
-				resolve( true );
-			}, 20);
-		});
-	}
-
-	handleChange( event ) {
-		this.props.appState.changeName( event.target.value );
-	}x
-
-	render() {
-		return (
-			<div>
-				<Helmet>
-					<title>cnode</title>
-					<meta name="description" content="this is description"/>
-				</Helmet>
-				<input type="text" onChange={ this.handleChange }/>
-				<div>this is TopicList page { this.props.appState.count } { this.props.appState.name }</div>
-			</div>
-		);
-	}
+function TopicList() {
+	return (
+		<TopicListSection>
+			<Tab />
+			<Switch>
+				<Route path="/list" exact render={ () => <Redirect to="/list/all" /> } />
+				<Route path="/list/all" component={ TopicListAll } />
+				<Route path="/list/good" component={ TopicListGood } />
+				<Route path="/list/share" component={ TopicListShare } />
+				<Route path="/list/ask" component={ TopicListAsk } />
+				<Route path="/list/job" component={ TopicListJob } />
+				<Route render={ () => <Redirect to="/list/all" /> } />
+			</Switch>
+		</TopicListSection>
+	);
 }
-
-TopicList.propTypes = {
-	appState: PropTypes.instanceOf( AppStateClass ),
-};
 
 export default TopicList;

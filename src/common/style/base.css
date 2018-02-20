@@ -1,0 +1,8 @@
+body, html {
+  font-family: 'PingFang SC', 'STHeitiSC-Light', 'Helvetica-Light', arial, sans-serif, 'Droid Sans Fallback';
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+	background: #e1e1e1;
+	min-width: 1100px;
+	overflow: auto;
+}

@@ -57,7 +57,7 @@ app.use( ( error, request, response, next ) => {
 })
 
 
-const server = app.listen( PORT, "localhost", function () {
+const server = app.listen( PORT, "0.0.0.0", function () {
 	let host = server.address().address;
 	let port = server.address().port;
 	console.log("The server is listening at http://%s:%s", host, port);

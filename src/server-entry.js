@@ -1,23 +1,21 @@
 import React from 'react';
 import { StaticRouter } from 'react-router-dom';
-import { Provider, useStaticRendering } from 'mobx-react';
+import { Provider } from 'react-redux';
 import { ServerStyleSheet, StyleSheetManager } from 'styled-components';
 import App from './App.jsx';
-import { createStoreMap } from './store/store.js';
+import rootReducer from './store/index.js';
 
-useStaticRendering( true );
 
 const sheet = new ServerStyleSheet();
 
-export default ( stores, routerContenxt, url ) => (
-	<Provider {...stores}>
+export default ( store, routerContenxt, url ) => (
+	<Provider store={ store }>
 		<StaticRouter context={routerContenxt} location={url}>
-			<StyleSheetManager sheet={ sheet.instance }>
+			<StyleSheetManager sheet={sheet.instance}>
 				<App />
 			</StyleSheetManager>
 		</StaticRouter>
 	</Provider>
 );
 
-
-export { createStoreMap };
+export { rootReducer };

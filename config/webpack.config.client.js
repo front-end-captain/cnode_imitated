@@ -1,7 +1,9 @@
-const path = require("path");
+const path = require('path');
 const HtmlWebpackPlugin = require( 'html-webpack-plugin' );
 const CLeanWebpackPlugin = require( 'clean-webpack-plugin' );
 const webpack = require( 'webpack' );
+const autoprefixer = require('autoprefixer');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 
 // 判断是否为开发环境
@@ -19,7 +21,6 @@ const ASSETS_PATH = '/assets/';
 
 
 const config = {
-	devtool: 'source-map',
 	// 依赖入口文件
 	entry: {
 		app: SRC_PATH + '/app.js'
@@ -56,6 +57,52 @@ const config = {
 				options: {
 					cacheDirectory: true,
 				}
+			},
+			{
+        test: /\.css$/,
+        loader: ExtractTextPlugin.extract(
+          Object.assign(
+            {
+              fallback: {
+                loader: require.resolve('style-loader'),
+              },
+              use: [
+                {
+                  loader: require.resolve('css-loader'),
+                  options: {
+                    importLoaders: 1,
+                  },
+                },
+                {
+                  loader: require.resolve('postcss-loader'),
+                  options: {
+                    ident: 'postcss',
+                    plugins: () => [
+                      require('postcss-flexbugs-fixes'),
+                      autoprefixer({
+                        browsers: [
+                          '>1%',
+                          'last 4 versions',
+                          'Firefox ESR',
+                          'not ie < 9', // React doesn't support IE8 anyway
+                        ],
+                        flexbox: 'no-2009',
+                      }),
+                    ],
+                  },
+                },
+              ],
+            },
+          )
+        )
+      },
+			{
+				test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
+        loader: 'url-loader',
+        options: {
+          limit: 10000,
+          name: '[name].[hash:7].[ext]'
+        }
 			}
 		]
 	},
@@ -74,6 +121,11 @@ const config = {
 		new webpack.optimize.CommonsChunkPlugin({
 			name: 'common-chunk',
 			minChunks: Infinity
+		}),
+		new ExtractTextPlugin({
+			filename: '[name]-[contenthash:5].css',
+			ignoreOrder: true,
+			allChunks: true
 		})
 	]
 };
@@ -84,6 +136,7 @@ const config = {
 // dev-server 打包后的文件hash 和 已经存在的打包目录中的文件 hash 将不一致 将会导致 404 错误
 // 所以在开发环境下应该删除打包目录文件夹
 if ( isDev ) {
+	config.devtool = "source-map";
 	config.entry = {
 		app: [
 			'react-hot-loader/patch',
