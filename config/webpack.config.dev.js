@@ -113,6 +113,7 @@ const config = {
 	},
 
 	devServer: {
+		open: true,
 		host: "0.0.0.0",
 		port: "8080",
 		contentBase: BUILD_PATH,
@@ -130,6 +131,11 @@ const config = {
 	},
 
 	plugins: [
+		new webpack.DefinePlugin({
+			'process.env': {
+				NODE_ENV: JSON.stringify('development')
+			}
+		}),
 		// 开发环境下仍然清除 build 目录 防止浏览器请求 build 目录下过期的文件
 		// dev-server 会检测计算机硬盘上的打包后的目录
 		// 若是存在打包后的目录文件夹
@@ -144,20 +150,13 @@ const config = {
 		}),
 		// 开发环境和生产环境下的服务端渲染模版文件
 		new HtmlWebpackPlugin({
-			template:
-				"!!ejs-compiled-loader!" +
-				path.resolve(__dirname, "./../src/server.template.ejs"),
+			template: "!!ejs-compiled-loader!" + path.resolve(__dirname, "./../src/server.template.ejs"),
 			filename: "server.ejs"
 		}),
 		new ExtractTextPlugin({
 			filename: "[name]-[contenthash:5].css",
 			ignoreOrder: true,
 			allChunks: true
-		}),
-		new webpack.DefinePlugin({
-			"process.env": {
-				NODE_ENV: JSON.stringify("development")
-			}
 		}),
 		new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
 		new webpack.NamedModulesPlugin(),

@@ -29,7 +29,7 @@ const NativeModule = require('module');
 const vm = require('vm');
 
 const getModuleFromString = ( bundle, filename ) => {
-	const m =  { exports: {} };
+	const m = { exports: {} };
 	const wrapper = NativeModule.wrap( bundle );
 	const script = new vm.Script( wrapper, {
 		filename: filename,
@@ -61,9 +61,9 @@ serverCompiler.watch({}, ( error, stats ) => {
 		throw error;
 	}
 
-	stats = stats.toJson();
-	stats.errors.forEach( error => console.error( error ) );
-	stats.warnings.forEach( warn => console.warn( warn ) );
+	const info = stats.toJson();
+	info.errors.forEach( error => console.error( error ) );
+	info.warnings.forEach( warn => console.warn( warn ) );
 
 	const bundlePath = path.join(
 		serverConfig.output.path,

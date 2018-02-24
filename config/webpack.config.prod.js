@@ -111,6 +111,11 @@ const config = {
 	},
 
   plugins: [
+		new webpack.DefinePlugin({
+			'process.env': {
+				NODE_ENV: JSON.stringify('production')
+			}
+		}),
 		new CleanWebpackPlugin(['build']),
     new HtmlWebpackPlugin({
       title: 'cnode',
@@ -154,9 +159,6 @@ const config = {
 		}),
 		new webpack.NamedModulesPlugin(),
 		new NameAllModulesPlugin(),
-		new webpack.DefinePlugin({
-			'process.env.NODE_ENV': JSON.stringify('production')
-		}),
 		new webpack.NamedChunksPlugin(( chunk ) => {
 			if ( chunk.name ) {
 				return chunk.name;

@@ -7,7 +7,7 @@ const session = require('express-session');
 const serverRender = require('./utils/serverRender.js');
 const PORT = 3000;
 
-const isDev = process.env.NODE_ENV === 'development';
+const env = process.env.NODE_ENV;
 
 
 const app = express();
@@ -33,7 +33,7 @@ app.use('/api', require('./utils/proxy'));
 
 
 // 在非开发环境下 build 目录下才存在服务端要直出的资源（bundle）文件 即生产环境下的服务端渲染（npm run build）
-if ( !isDev ) {
+if ( env === 'production' ) {
 
 	const serverEntry = require( './../build/server-entry' );
 
@@ -46,7 +46,7 @@ if ( !isDev ) {
 }
 
 // 开发环境下的服务端渲染（还没有打包 build 目录还没有生成）
-else {
+if ( env === 'development' ) {
 	const devStatic = require( './utils/dev-static.js' );
 	devStatic( app );
 }
