@@ -8,7 +8,9 @@ import 'rc-pagination/assets/index.css';
 import ListView from './../../components/ListView/list_view.jsx';
 import Loading from './../../components/Loading/loading.jsx';
 import NoResult from './../../components/NoResult/no_result.jsx';
-import { saveTopicListGood } from './../../store/topicList.store.js';
+import { saveTopicListGood, changeTopicListGoodPageIndex } from './../../store/topicList.store.js';
+import { normalizeTopicList } from './../../common/js/topicList.js';
+
 
 const LoadingContainer = styled.div`
 	width: 100%;
@@ -23,7 +25,7 @@ const PaginationWrapper = styled.div`
 
 @connect(
 	state => state.topicList,
-	{ saveTopicListGood },
+	{ saveTopicListGood, changeTopicListGoodPageIndex },
 )
 class TopicListGood extends Component {
 	constructor() {
@@ -50,7 +52,8 @@ class TopicListGood extends Component {
 		try {
 			res = await axios.get(`/api/topics?tab=${type}&page=${page}&limit=${limit}`);
 			if ( res.status === 200 && res.data.success ) {
-				this.props.saveTopicListGood( res.data.data );
+				this.props.saveTopicListGood( normalizeTopicList(res.data.data) );
+				this.props.changeTopicListGoodPageIndex( current );
 			} else {
 				this.setState({ loadFail: true });
 			}
@@ -71,7 +74,7 @@ class TopicListGood extends Component {
 		try {
 			res = await axios.get(`/api/topics?tab=${type}&page=${page}&limit=${limit}`);
 			if ( res.status === 200 && res.data.success ) {
-				this.props.saveTopicListGood( res.data.data );
+				this.props.saveTopicListGood( normalizeTopicList(res.data.data) );
 			} else {
 				this.setState({ loadFail: true });
 			}
@@ -95,7 +98,7 @@ class TopicListGood extends Component {
 			<PaginationWrapper key={2}>
 				<Pagination
 					defaultPageSize={this.LIMIT}
-					defaultCurrent={1}
+					defaultCurrent={this.props.topicListGoodPageIndex}
 					total={16 * 20}
 					onChange={ this.onPageNumChange }
 				/>
@@ -108,6 +111,8 @@ TopicListGood.propTypes = {
 	location: PropTypes.instanceOf( Object ).isRequired,
 	topicListGood: PropTypes.instanceOf( Array ),
 	saveTopicListGood: PropTypes.instanceOf( Function ),
+	changeTopicListGoodPageIndex: PropTypes.instanceOf( Function ),
+	topicListGoodPageIndex: PropTypes.number,
 };
 
 export default TopicListGood;

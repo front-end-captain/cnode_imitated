@@ -12,6 +12,16 @@ const SAVE_TOPICLIST_SHARE = 'SAVE_TOPICLIST_SHARE';
 
 const SAVE_TOPICLIST_JOB = 'SAVE_TOPICLIST_JOB';
 
+const CHANGE_TOPICLIST_ALL_PAGE_INDEX = 'CHANGE_TOPICLIST_ALL_PAGE_INDEX';
+
+const CHANGE_TOPICLIST_GOOD_PAGE_INDEX = 'CHANGE_TOPICLIST_GOOD_PAGE_INDEX';
+
+const CHANGE_TOPICLIST_ASK_PAGE_INDEX = 'CHANGE_TOPICLIST_ASK_PAGE_INDEX';
+
+const CHANGE_TOPICLIST_SHARE_PAGE_INDEX = 'CHANGE_TOPICLIST_SHARE_PAGE_INDEX';
+
+const CHANGE_TOPICLIST_JOB_PAGE_INDEX = 'CHANGE_TOPICLIST_JOB_PAGE_INDEX';
+
 
 /**
  * 		reducer
@@ -22,6 +32,11 @@ const initState = {
 	topicListAsk: [],
 	topicListShare: [],
 	topicListJob: [],
+	topicListAllPageIndex: 1,
+	topicListGoodPageIndex: 1,
+	topicListAskPageIndex: 1,
+	topicListSharePageIndex: 1,
+	topicListJobPageIndex: 1,
 };
 export const topicListReducer = ( state = initState, action ) => {
 	switch ( action.type ) {
@@ -35,6 +50,16 @@ export const topicListReducer = ( state = initState, action ) => {
 			return { ...state, topicListShare: action.payload };
 		case SAVE_TOPICLIST_JOB:
 			return { ...state, topicListJob: action.payload };
+		case CHANGE_TOPICLIST_ALL_PAGE_INDEX:
+			return { ...state, topicListAllPageIndex: action.payload };
+		case CHANGE_TOPICLIST_GOOD_PAGE_INDEX:
+			return { ...state, topicListGoodPageIndex: action.payload };
+		case CHANGE_TOPICLIST_ASK_PAGE_INDEX:
+			return { ...state, topicListAskPageIndex: action.payload };
+		case CHANGE_TOPICLIST_SHARE_PAGE_INDEX:
+			return { ...state, topicListSharePageIndex: action.payload };
+		case CHANGE_TOPICLIST_JOB_PAGE_INDEX:
+			return { ...state, topicListJobPageIndex: action.payload };
 		default:
 			return state;
 	}
@@ -70,5 +95,35 @@ export const saveTopicListShare = ( data ) => {
 export const saveTopicListJob = ( data ) => {
 	return ( dispatch ) => {
 		dispatch({ type: SAVE_TOPICLIST_JOB, payload: data });
+	};
+};
+
+export const changeTopicListAllPageIndex = ( index ) => {
+	return ( dispatch ) => {
+		dispatch({ type: CHANGE_TOPICLIST_ALL_PAGE_INDEX, payload: index });
+	};
+};
+
+export const changeTopicListGoodPageIndex = ( index ) => {
+	return ( dispatch ) => {
+		dispatch({ type: CHANGE_TOPICLIST_GOOD_PAGE_INDEX, payload: index });
+	};
+};
+
+export const changeTopicListSharePageIndex = ( index ) => {
+	return ( dispatch ) => {
+		dispatch({ type: CHANGE_TOPICLIST_SHARE_PAGE_INDEX, payload: index });
+	};
+};
+
+export const changeTopicListAskPageIndex = ( index ) => {
+	return ( dispatch ) => {
+		dispatch({ type: CHANGE_TOPICLIST_ASK_PAGE_INDEX, payload: index });
+	};
+};
+
+export const changeTopicListJobPageIndex = ( index ) => {
+	return ( dispatch ) => {
+		dispatch({ type: CHANGE_TOPICLIST_JOB_PAGE_INDEX, payload: index });
 	};
 };

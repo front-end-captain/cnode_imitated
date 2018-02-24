@@ -8,7 +8,8 @@ import 'rc-pagination/assets/index.css';
 import ListView from './../../components/ListView/list_view.jsx';
 import Loading from './../../components/Loading/loading.jsx';
 import NoResult from './../../components/NoResult/no_result.jsx';
-import { saveTopicListAll } from './../../store/topicList.store.js';
+import { saveTopicListAll, changeTopicListAllPageIndex } from './../../store/topicList.store.js';
+import { normalizeTopicList } from './../../common/js/topicList.js';
 
 const LoadingContainer = styled.div`
 	width: 100%;
@@ -25,7 +26,7 @@ const PaginationWrapper = styled.div`
 
 @connect(
 	state => state.topicList,
-	{ saveTopicListAll },
+	{ saveTopicListAll, changeTopicListAllPageIndex },
 )
 class TopicListAll extends Component {
 	constructor() {
@@ -51,7 +52,8 @@ class TopicListAll extends Component {
 		try {
 			res = await axios.get(`/api/topics?tab=${type}&page=${page}&limit=${limit}`);
 			if ( res.status === 200 && res.data.success ) {
-				this.props.saveTopicListAll( res.data.data );
+				this.props.saveTopicListAll( normalizeTopicList( res.data.data ) );
+				this.props.changeTopicListAllPageIndex( current );
 			} else {
 				this.setState({ loadFail: true });
 			}
@@ -74,7 +76,7 @@ class TopicListAll extends Component {
 			try {
 				res = await axios.get(`/api/topics?tab=${type}&page=${page}&limit=${limit}`);
 				if ( res.status === 200 && res.data.success ) {
-					this.props.saveTopicListAll( res.data.data );
+					this.props.saveTopicListAll( normalizeTopicList( res.data.data ) );
 				} else {
 					this.setState({ loadFail: true });
 				}
@@ -100,7 +102,7 @@ class TopicListAll extends Component {
 			<PaginationWrapper key={2}>
 				<Pagination
 					defaultPageSize={this.LIMIT}
-					defaultCurrent={1}
+					defaultCurrent={this.props.topicListAllPageIndex}
 					total={96 * 20}
 					onChange={ this.onPageNumChange }
 				/>
@@ -113,6 +115,8 @@ TopicListAll.propTypes = {
 	location: PropTypes.instanceOf( Object ).isRequired,
 	topicListAll: PropTypes.instanceOf( Array ),
 	saveTopicListAll: PropTypes.instanceOf( Function ),
+	changeTopicListAllPageIndex: PropTypes.instanceOf( Function ),
+	topicListAllPageIndex: PropTypes.number,
 };
 
 export default TopicListAll;

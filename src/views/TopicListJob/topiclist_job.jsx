@@ -8,7 +8,9 @@ import 'rc-pagination/assets/index.css';
 import ListView from './../../components/ListView/list_view.jsx';
 import Loading from './../../components/Loading/loading.jsx';
 import NoResult from './../../components/NoResult/no_result.jsx';
-import { saveTopicListJob } from './../../store/topicList.store.js';
+import { saveTopicListJob, changeTopicListJobPageIndex } from './../../store/topicList.store.js';
+import { normalizeTopicList } from './../../common/js/topicList.js';
+
 
 const LoadingContainer = styled.div`
 	width: 100%;
@@ -23,7 +25,7 @@ const PaginationWrapper = styled.div`
 
 @connect(
 	state => state.topicList,
-	{ saveTopicListJob },
+	{ saveTopicListJob, changeTopicListJobPageIndex },
 )
 class TopicListJob extends Component {
 	constructor() {
@@ -49,7 +51,8 @@ class TopicListJob extends Component {
 		try {
 			res = await axios.get(`/api/topics?tab=${type}&page=${page}&limit=${limit}`);
 			if ( res.status === 200 && res.data.success ) {
-				this.props.saveTopicListJob( res.data.data );
+				this.props.saveTopicListJob( normalizeTopicList(res.data.data) );
+				this.props.changeTopicListJobPageIndex( current );
 			} else {
 				this.setState({ loadFail: true });
 			}
@@ -70,7 +73,7 @@ class TopicListJob extends Component {
 		try {
 			res = await axios.get(`/api/topics?tab=${type}&page=${page}&limit=${limit}`);
 			if ( res.status === 200 && res.data.success ) {
-				this.props.saveTopicListJob( res.data.data );
+				this.props.saveTopicListJob( normalizeTopicList(res.data.data) );
 			} else {
 				this.setState({ loadFail: true });
 			}
@@ -95,7 +98,7 @@ class TopicListJob extends Component {
 			<PaginationWrapper key={2}>
 				<Pagination
 					defaultPageSize={this.LIMIT}
-					defaultCurrent={1}
+					defaultCurrent={this.props.topicListJobPageIndex}
 					total={11 * 20}
 					onChange={ this.onPageNumChange }
 				/>
@@ -108,6 +111,8 @@ TopicListJob.propTypes = {
 	location: PropTypes.instanceOf( Object ).isRequired,
 	topicListJob: PropTypes.instanceOf( Object ),
 	saveTopicListJob: PropTypes.instanceOf( Function ),
+	changeTopicListJobPageIndex: PropTypes.instanceOf( Function ),
+	topicListJobPageIndex: PropTypes.number,
 };
 
 export default TopicListJob;
