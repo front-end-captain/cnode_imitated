@@ -54,6 +54,9 @@ const ListViewSection = styled.div`
 			}
 			.title {
 				flex: 10 1;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				overflow: hidden;
 				a:hover {
 					text-decoration: underline;
 				}
