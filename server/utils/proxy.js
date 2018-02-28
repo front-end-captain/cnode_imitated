@@ -4,7 +4,7 @@ const queryString = require('query-string');
 const baseUrl = 'https://cnodejs.org/api/v1';
 
 
-module.exports = ( request, response, next ) => {
+const proxyHandle = ( request, response, next ) => {
 	const path = request.path;
 	const user = request.session.user || {};
 	const needAccessToken = request.query.needAccessToken;
@@ -49,4 +49,6 @@ module.exports = ( request, response, next ) => {
 			})
 		}
 	})
-}
+};
+
+module.exports = proxyHandle;

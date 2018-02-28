@@ -6,7 +6,7 @@ const Helmet = require('react-helmet').default;
 const createStore = require('redux').createStore;
 
 
-module.exports = (bundle, template, request, response) => {
+const serverRenderHandle = (bundle, template, request, response) => {
 	return new Promise((resolve, reject) => {
 		const createApp = bundle.default;
 		let routerContext = {};
@@ -37,3 +37,5 @@ module.exports = (bundle, template, request, response) => {
 		}).catch(reject);
 	});
 };
+
+module.exports = serverRenderHandle;
