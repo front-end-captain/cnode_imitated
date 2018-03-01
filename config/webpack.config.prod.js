@@ -137,7 +137,8 @@ const config = {
     }),
     new HtmlWebpackPlugin({
 			template: "!!ejs-compiled-loader!"  + path.resolve( __dirname, './../src/server.template.ejs' ),
-			filename: 'server.ejs'
+			filename: 'server.ejs',
+			favicon: path.resolve(__dirname, './../cnode.ico'),
 		}),
     new webpack.optimize.UglifyJsPlugin({
       compress: {

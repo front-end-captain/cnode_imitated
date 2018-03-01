@@ -151,7 +151,8 @@ const config = {
 		// 开发环境和生产环境下的服务端渲染模版文件
 		new HtmlWebpackPlugin({
 			template: "!!ejs-compiled-loader!" + path.resolve(__dirname, "./../src/server.template.ejs"),
-			filename: "server.ejs"
+			filename: "server.ejs",
+			favicon: path.resolve(__dirname, "./../cnode.ico")
 		}),
 		new ExtractTextPlugin({
 			filename: "[name]-[contenthash:5].css",

@@ -5,6 +5,7 @@ import TopicList from './views/TopicList/topic_list.jsx';
 import TopicDetail from './views/TopicDetail/topic_detail.jsx';
 import ApiTest from './views/test/api.test.jsx';
 import Header from './components/Header/header.jsx';
+import HelmetSection from './components/Helmet/helmet.jsx';
 
 class App extends Component {
 	constructor() {
@@ -26,6 +27,7 @@ class App extends Component {
 			? <div>404 error</div>
 			: [
 				<Header key="header" />,
+				<HelmetSection key="helmetsection" />,
 				<Switch key="switch">
 					<Route path="/" exact render={ () => <Redirect to="/list" />} />
 					<Route path="/list" component={ TopicList } />

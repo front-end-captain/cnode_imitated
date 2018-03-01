@@ -26,6 +26,8 @@ app.use( session({
 	saveUninitialized: false,
 	secret: 'react_cnode'
 }));
+
+// serve-favico 可能回失效 在 html-webpack-plugin 中配置
 app.use( favicon( path.resolve(__dirname, './../cnode.ico')));
 
 app.use('/api/user', require('./utils/handle-login'));
