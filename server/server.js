@@ -6,12 +6,14 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const serverRender = require('./utils/serverRender.js');
 const PORT = 3000;
-
+const HOST = '0.0.0.0';
 const env = process.env.NODE_ENV;
 
 
 const app = express();
 
+
+// logger
 app.use( function ( request, response, next ) {
 	console.log( "The request type is " + request.method + "; request url is " + request.originalUrl );
 	next();
@@ -27,7 +29,7 @@ app.use( session({
 	secret: 'react_cnode'
 }));
 
-// serve-favico 可能回失效 在 html-webpack-plugin 中配置
+// serve-favico 可能会失效 在 html-webpack-plugin 中配置
 app.use( favicon( path.resolve(__dirname, './../cnode.ico')));
 
 app.use('/api/user', require('./utils/handle-login'));
@@ -40,6 +42,8 @@ if ( env === 'production' ) {
 	const serverEntry = require( './../build/server-entry' );
 
 	const template = fs.readFileSync( path.resolve( __dirname, './../build/server.ejs' ), 'utf8' );
+
+	// 生产环境下静态资源目录
 	app.use( '/assets', express.static( path.resolve( __dirname, './../build' ) ) );
 
 	app.get( '*', function( request, response, next ) {
@@ -53,13 +57,14 @@ if ( env === 'development' ) {
 	devStatic( app );
 }
 
+// 错误处理（所有中间件、路由抛出的异常都将在这里处理）
 app.use( ( error, request, response, next ) => {
 	console.log( error );
 	response.status(500).send( error );
 })
 
 
-const server = app.listen( PORT, "0.0.0.0", function () {
+const server = app.listen( PORT, HOST, function () {
 	let host = server.address().address;
 	let port = server.address().port;
 	console.log("The server is listening at http://%s:%s", host, port);
