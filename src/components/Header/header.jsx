@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 
 const HeaderSection = styled.div`
 	width: 100%;
@@ -36,10 +38,14 @@ const HeaderSection = styled.div`
 	}
 `;
 
+@connect(
+	state => state.user,
+	null,
+)
 class Header extends Component {
 
-	componentDidMount() {
-		// do something
+	static propTypes = {
+		isAuth: PropTypes.bool.isRequired,
 	}
 
 	render() {
@@ -62,8 +68,12 @@ class Header extends Component {
 						<NavLink to="/api">
 							<span>API</span>
 						</NavLink>
-						<NavLink to="/login">
-							<span>登录</span>
+						<NavLink to={ this.props.isAuth ? '/logout' : '/login' }>
+							{
+								this.props.isAuth
+								? <span>退出</span>
+								: <span>登录</span>
+							}
 						</NavLink>
 					</nav>
 				</div>

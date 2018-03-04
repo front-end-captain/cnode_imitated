@@ -8,6 +8,8 @@ import TopicListGood from './../TopicListGood/topiclist_good.jsx';
 import TopicListShare from './../TopicListShare/topiclist_share.jsx';
 import TopicListAsk from './../TopicListAsk/topiclist_ask.jsx';
 import TopicListJob from './../TopicListJob/topiclist_job.jsx';
+import CreateTopic from './../createTopic/create_topic.jsx';
+import TopicListTest from './../TopicListTest/topiclist_test.jsx';
 
 
 const TopicListSection = styled.div`
@@ -29,6 +31,8 @@ function TopicList() {
 				<Route path="/list/share" component={ TopicListShare } />
 				<Route path="/list/ask" component={ TopicListAsk } />
 				<Route path="/list/job" component={ TopicListJob } />
+				<Route path="/list/dev" component={ TopicListTest } />
+				<Route path="/list/create" component={ CreateTopic } />
 				<Route render={ () => <Redirect to="/list/all" /> } />
 			</Switch>
 		</TopicListSection>

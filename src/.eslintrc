@@ -32,6 +32,8 @@
 		"no-underscore-dangle": [0],
 		"prefer-destructuring": [0],
 		"camelcase": [1],
-		"no-irregular-whitespace": [0]
+		"no-irregular-whitespace": [0],
+		"jsx-a11y/no-static-element-interactions": [0],
+		"jsx-a11y/click-events-have-key-events": [0]
 	}
 }

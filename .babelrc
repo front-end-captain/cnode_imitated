@@ -3,6 +3,7 @@
 		"react-app"
 	],
 	"plugins": [
+		["import", { "libraryName": "antd", "libraryDirectory": "es", "style": "css" }] ,
 		"transform-decorators-legacy",
 		"react-hot-loader/babel",
 		"babel-plugin-styled-components"

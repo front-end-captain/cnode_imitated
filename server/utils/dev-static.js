@@ -10,6 +10,10 @@ const MemoryFS = require( 'memory-fs' );
 const Proxy = require( 'http-proxy-middleware' );
 const serverRender = require('./serverRender.js');
 
+process.on('uncaughtException', (error) => {
+  console.error( error );
+});
+
 
 // 获取在硬盘上的 html 模板文件 在 npm run dev:client 之后
 // 通过 http 请求的方式请求 webpack-dev-server 拿到 server.ejs

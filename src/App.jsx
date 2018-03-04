@@ -6,21 +6,22 @@ import TopicDetail from './views/TopicDetail/topic_detail.jsx';
 import ApiTest from './views/test/api.test.jsx';
 import Header from './components/Header/header.jsx';
 import HelmetSection from './components/Helmet/helmet.jsx';
+import Login from './views/login/login.jsx';
+import Logout from './views/logout/logout.jsx';
 
 class App extends Component {
 	constructor() {
 		super();
 		this.state = { hasError: false };
 	}
-  componentDidMount() {
-		// do something
-	}
+
 	componentDidCatch( error, info ) {
 		if ( error ) {
 			console.log( error, info );
 			this.setState({ hasError: true });
 		}
 	}
+
   render() {
 		const { hasError } = this.state;
 		return hasError
@@ -33,6 +34,8 @@ class App extends Component {
 					<Route path="/list" component={ TopicList } />
 					<Route path="/detail/:id" component={ TopicDetail } />
 					<Route path="/test" component={ ApiTest } />
+					<Route path="/login" component={ Login } />
+					<Route path="/logout" component={ Logout } />
 				</Switch>,
 			];
   }

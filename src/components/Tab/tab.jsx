@@ -41,6 +41,12 @@ function Tab() {
 			<NavLink to="/list/job">
 				<span>招聘</span>
 			</NavLink>
+			<NavLink to="/list/dev">
+				<span>客户端测试</span>
+			</NavLink>
+			<NavLink to="/list/create">
+				<span>发帖</span>
+			</NavLink>
 		</TabSection>
 	);
 }
