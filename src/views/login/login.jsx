@@ -1,5 +1,6 @@
 /* eslint-disable react/no-unused-state */
 /* eslint-disable no-debugger */
+/* eslint-disable no-return-assign */
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
@@ -95,6 +96,14 @@ class Login extends Component {
 		this.handleCancel = this.handleCancel.bind( this );
 	}
 
+	componentDidMount() {
+		this.input.addEventListener('keydown', ( event ) => {
+			if ( event.keyCode === 13 ) {
+				this.handleLogin();
+			}
+		});
+	}
+
 	handleChange( event ) {
 		this.setState({ accessToken: event.target.value });
 	}
@@ -131,7 +140,13 @@ class Login extends Component {
 			<LoginPage>
 				<div className="cover-layer" />
 				<div className="login-panel">
-					<input type="text" placeholder="请输入 accesstoken" onChange={ this.handleChange } />
+					<input
+						type="text"
+						placeholder="请输入 accesstoken"
+						onChange={ this.handleChange }
+						onKeyDown={ this.handleLogin }
+						ref={ input => this.input = input }
+					/>
 					<span className="tip">{ this.state.loginFail ? '登录失败' : '' }</span>
 					<button type="button" onClick={ this.handleLogin } >登&nbsp;&nbsp;录</button>
 					<button type="button" onClick={ this.handleCancel } >取&nbsp;&nbsp;消</button>
