@@ -1,11 +1,18 @@
+/* eslint-disable no-debugger */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 import styled from 'styled-components';
 import marked from 'marked';
 import moment from 'moment';
+import BraftEditor from 'braft-editor';
+import 'braft-editor/dist/braft.css';
+import { connect } from 'react-redux';
+import { message } from 'antd';
+
 import NoResult from './../../components/NoResult/no_result.jsx';
 import Loading from './../../components/Loading/loading.jsx';
+import { throttle, normalizeCommentData } from './../../common/js/topicList.js';
 
 
 const LoadingContainer = styled.div`
@@ -59,6 +66,37 @@ const TopicDetailSection = styled.div`
 		border-radius: 10px;
 		div:first-child {
 			border-radius: 10px 10px 0 0;
+		}
+	}
+	.add-comment-area {
+		position: relative;
+		margin-top: 10px;
+		background-color: #fff;
+		height: auto;
+		border-radius: 10px;
+		.title {
+			height: 30px;
+			line-height: 30px;
+			text-indent: 1rem;
+			background-color: #f6f6f6;
+			border-bottom: 1px solid #e5e5e5;
+			border-radius: 10px 10px 0 0;
+		}
+		.submit-btn {
+			position: relative;
+			width: 100px;
+			height: 40px;
+			background-color: lightblue;
+			line-height: 40px;
+			text-align: center;
+			border-radius: 10px;
+			bottom: 10px;
+			left: 10px;
+			cursor: pointer;
+			transition: all 0.5s;
+			&:hover {
+				background-color: lightcyan;
+			}
 		}
 	}
 
@@ -462,10 +500,15 @@ const ReplyItem = styled.div`
 	}
 `;
 
-
+@connect(
+	state => state.user,
+	null,
+)
 class TopicDetail extends Component {
 	static propTypes = {
 		match: PropTypes.instanceOf( Object ),
+		isAuth: PropTypes.bool.isRequired,
+		userInfo: PropTypes.instanceOf( Object ).isRequired,
 	}
 
 	constructor() {
@@ -473,9 +516,17 @@ class TopicDetail extends Component {
 		this.state = {
 			loadFail: false,
 			articleContent: null,
+			plainText: '',
+			htmlContent: '',
+			replies: [],
 		};
 
 		this.getArticleDetail = this.getArticleDetail.bind( this );
+		this.handleCommentSubmitWrapper = this.handleCommentSubmitWrapper.bind( this );
+		this.handleCommentSubmit = this.handleCommentSubmit.bind( this );
+		this.handleChange = this.handleChange.bind( this );
+		this.handleHTMLChange = this.handleHTMLChange.bind( this );
+		this.postComment = this.postComment.bind( this );
 	}
 
 	componentDidMount() {
@@ -487,16 +538,71 @@ class TopicDetail extends Component {
 		let res = null;
 		try {
 			res = await axios.get(`/api/topic/${id}`);
-			console.log( res );
 			if ( res.status === 200 && res.data.success ) {
 				this.setState({ articleContent: res.data.data });
+				this.setState({ replies: res.data.data.replies });
 			} else {
 				this.setState({ loadFail: true });
 			}
 		} catch ( error ) {
-			console.log( error );
+			console.error( error );
 			this.setState({ loadFail: true });
 		}
+	}
+
+	handleCommentSubmitWrapper() {
+		throttle( this.handleCommentSubmit, this );
+	}
+
+	handleCommentSubmit() {
+		const { htmlContent, plainText } = this.state;
+		if ( !this.props.isAuth ) {
+			message.warning('您还没有登录，登录后方可评论');
+			return;
+		}
+		if ( !htmlContent || !plainText ) {
+			message.warning('评论内容不能为空');
+			this.editor.focus();
+			return;
+		}
+		this.postComment( htmlContent );
+	}
+
+	async postComment( content ) {
+		const { id } = this.props.match.params;
+		const { loginname, avatar_url } = this.props.userInfo;
+		let res = null;
+		try {
+			res = await axios.post(`/api/topic/${id}/replies?needAccessToken=true`, { content });
+			if ( res.status === 200 && res.data.success ) {
+				const commentItem = normalizeCommentData({ content, avatar_url, loginname });
+				let repliesArr = this.state.articleContent.replies;
+				repliesArr = repliesArr.push( commentItem );
+				this.setState({ replies: repliesArr });
+				message.success('评论成功');
+				// 评论成功
+			} else {
+				message.warning('评论失败');
+				this.editor.focus();
+			}
+		} catch ( error ) {
+			// 评论失败
+			console.error(error);
+			message.error('评论失败');
+			this.editor.focus();
+		}
+	}
+
+	handleHTMLChange( html ) {
+		this.setState({ htmlContent: html });
+	}
+
+	handleChange( content ) {
+		const commentConentArr = content.blocks.map( (block) => {
+      return block.text;
+    });
+    const commentConentStr = commentConentArr.join('');
+		this.setState({ plainText: commentConentStr });
 	}
 
 	render() {
@@ -508,8 +614,27 @@ class TopicDetail extends Component {
 		}
 
 		const {
-			top, good, title, create_at, author, visit_count, last_reply_at, content, tab, replies,
+			top, good, title, create_at, author, visit_count, last_reply_at, content, tab,
 		} = this.state.articleContent;
+		const { replies } = this.state.replies;
+		const renderTypeBtn = () => {
+			if ( top ) {
+				return <TypeBtn primary>置顶</TypeBtn>;
+			}
+			if ( good ) {
+				return <TypeBtn primary>精华</TypeBtn>;
+			}
+			return null;
+		};
+
+		const editorProps = {
+      height: 150,
+      initialContent: null,
+      onChange: this.handleChange,
+			onHTMLChange: this.handleHTMLChange,
+			placeholder: this.props.isAuth ? '输入评论内容...' : '登录后方可评论',
+			disabled: !this.props.isAuth,
+		};
 
 		return (
 			<TopicDetailSection>
@@ -517,15 +642,7 @@ class TopicDetail extends Component {
 				{/* 话题详情头部 开始 */}
 				<div className="topic-header">
 					<h2 className="title">
-						{
-							top
-								? <TypeBtn primary>置顶</TypeBtn>
-								: (
-									good
-										? <TypeBtn primary>精华</TypeBtn>
-										: null
-									)
-						}&nbsp;
+						{ renderTypeBtn() }&nbsp;
 						{ title }
 					</h2>
 					<p className="info">
@@ -549,7 +666,7 @@ class TopicDetail extends Component {
 				{/* 话题详情回复 开始 */}
 				<div className="topic-reply">
 					{
-						replies.map( ( item, index ) => {
+						replies && replies.map( ( item, index ) => {
 							return (
 								<ReplyItem key={ item.id }>
 									<div className="header">
@@ -573,6 +690,16 @@ class TopicDetail extends Component {
 					}
 				</div>
 				{/* 话题详情回复 结束 */}
+
+				{/* 添加评论区域 开始 */}
+				<div className="add-comment-area">
+					<div className="title">添加回复</div>
+					<div className="editor-warpper">
+						<BraftEditor {...editorProps} ref={ (editor) => { this.editor = editor; } } />
+					</div>
+					<div className="submit-btn" onClick={ this.handleCommentSubmitWrapper } >提交评论</div>
+				</div>
+				{/* 添加评论区域 结束 */}
 
 			</TopicDetailSection>
 		);

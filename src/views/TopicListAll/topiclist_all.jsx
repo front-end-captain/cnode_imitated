@@ -58,7 +58,7 @@ class TopicListAll extends Component {
 				this.setState({ loadFail: true });
 			}
 		} catch ( error ) {
-			console.log( error );
+			console.error( error );
 			this.setState({ loadFail: true });
 		}
 	}
@@ -81,7 +81,7 @@ class TopicListAll extends Component {
 					this.setState({ loadFail: true });
 				}
 			} catch ( error ) {
-				console.log( error );
+				console.error( error );
 				this.setState({ loadFail: true });
 			}
 		}

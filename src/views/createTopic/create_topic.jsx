@@ -4,7 +4,9 @@ import BraftEditor from 'braft-editor';
 import 'braft-editor/dist/braft.css';
 import axios from 'axios';
 import { message } from 'antd';
-
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+import { throttle } from './../../common/js/topicList.js';
 
 const CreateTopicSection = styled.div`
 	padding: 20px;
@@ -70,23 +72,30 @@ const CreateTopicSection = styled.div`
 	}
 `;
 
-
+@connect(
+	state => state.user,
+	null,
+)
 class CreateTopic extends Component {
+	static propTypes = {
+		isAuth: PropTypes.bool.isRequired,
+	}
 	constructor() {
 		super();
+		this.state = {
+			title: '',
+			htmlContent: '',
+			tab: 'dev',
+			plainText: '',
+		};
 		this.handleHTMLChange = this.handleHTMLChange.bind( this );
 		this.handleSubmit = this.handleSubmit.bind( this );
 		this.createTocpic = this.createTocpic.bind( this );
 		this.handleTitleChange = this.handleTitleChange.bind( this );
 		this.handleSelectChange = this.handleSelectChange.bind( this );
 		this.handleChange = this.handleChange.bind( this );
+		this.handleSubmitWrapper = this.handleSubmitWrapper.bind( this );
 	}
-	state = {
-		title: '',
-		htmlContent: '',
-		tab: 'dev',
-		plainText: '',
-  }
 
   handleHTMLChange(html) {
 		this.setState({ htmlContent: html });
@@ -96,6 +105,10 @@ class CreateTopic extends Component {
 		this.setState({ plainText: content });
 	}
 
+	handleSubmitWrapper() {
+		throttle( this.handleSubmit, this );
+	}
+
 	handleSubmit() {
 		const {
 			title,
@@ -103,6 +116,11 @@ class CreateTopic extends Component {
 			htmlContent,
 			plainText,
 		} = this.state;
+
+		if ( !this.props.isAuth ) {
+			message.warning('您还没有登录，登录后方可评论');
+			return;
+		}
 
 		if ( !title.trim() ) {
 			message.warning('标题内容不能为空');
@@ -152,7 +170,8 @@ class CreateTopic extends Component {
       initialContent: null,
       onChange: this.handleChange,
 			onHTMLChange: this.handleHTMLChange,
-			placeholder: '输入话题内容...',
+			placeholder: this.props.isAuth ? '输入话题内容...' : '登录后才可以创建话题',
+			disabled: !this.props.isAuth,
 		};
 
 		return (
@@ -182,7 +201,7 @@ class CreateTopic extends Component {
 					</label>
 				</div>
 				<BraftEditor {...editorProps} ref={ (editor) => { this.editor = editor; } } />
-				<div className="submit-btn" onClick={ this.handleSubmit } >提交</div>
+				<div className="submit-btn" onClick={ this.handleSubmitWrapper } >提交</div>
 			</CreateTopicSection>
 		);
 	}

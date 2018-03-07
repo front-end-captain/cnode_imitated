@@ -87,6 +87,7 @@ const TypeBtn = styled.span`
 	background-color: ${( props ) => { return props.primary ? '#80bd01' : '#e5e5e5'; }};
 `;
 
+
 const renderTypeBtn = ( tab ) => {
 	switch ( tab) {
 		case 'share':
@@ -98,6 +99,16 @@ const renderTypeBtn = ( tab ) => {
 		default:
 			return <TypeBtn>分享</TypeBtn>;
 	}
+};
+
+const renderTypeBtnWrapper = ( item ) => {
+	if ( item.top ) {
+		return <TypeBtn primary>置顶</TypeBtn>;
+	}
+	if ( item.good ) {
+		return <TypeBtn primary>精华</TypeBtn>;
+	}
+	return renderTypeBtn(item.tab);
 };
 
 function ListView( { dataList } ) {
@@ -121,15 +132,7 @@ function ListView( { dataList } ) {
 									<span>{ item.reply_count }/</span><span>{ item.visit_count }</span>
 								</div>
 								<div className="topic-type">
-									{
-										item.top
-											? <TypeBtn primary>置顶</TypeBtn>
-											: (
-													item.good
-														? <TypeBtn primary>精华</TypeBtn>
-														: renderTypeBtn( item.tab )
-												)
-									}
+									{ renderTypeBtnWrapper(item)	}
 								</div>
 								<div className="title">
 									<Link to={`/detail/${item.id}`}>{ item.title }</Link>
