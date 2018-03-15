@@ -4,7 +4,9 @@ import BraftEditor from 'braft-editor';
 import 'braft-editor/dist/braft.css';
 import axios from 'axios';
 import { message } from 'antd';
-
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+import { throttle } from './../../common/js/topicList.js';
 
 const CreateTopicSection = styled.div`
 	padding: 20px;
@@ -70,33 +72,56 @@ const CreateTopicSection = styled.div`
 	}
 `;
 
-
+@connect(
+	state => state.user,
+	null,
+)
 class CreateTopic extends Component {
+	static propTypes = {
+		isAuth: PropTypes.bool.isRequired,
+	}
+
 	constructor() {
 		super();
+
+		this.state = {
+			title: '',
+			htmlContent: '',
+			tab: 'dev',
+			plainText: '',
+		};
+
 		this.handleHTMLChange = this.handleHTMLChange.bind( this );
 		this.handleSubmit = this.handleSubmit.bind( this );
 		this.createTocpic = this.createTocpic.bind( this );
 		this.handleTitleChange = this.handleTitleChange.bind( this );
 		this.handleSelectChange = this.handleSelectChange.bind( this );
 		this.handleChange = this.handleChange.bind( this );
+		this.handleSubmitWrapper = this.handleSubmitWrapper.bind( this );
 	}
-	state = {
-		title: '',
-		htmlContent: '',
-		tab: 'dev',
-		plainText: '',
-  }
 
   handleHTMLChange(html) {
 		this.setState({ htmlContent: html });
 	}
 
 	handleChange( content ) {
-		this.setState({ plainText: content });
+		const topicArr = content.blocks.map((block) => {
+			return block.text;
+		});
+		const topicStr = topicArr.join('');
+		this.setState({ plainText: topicStr });
+	}
+
+	handleSubmitWrapper() {
+		throttle( this.handleSubmit, this );
 	}
 
 	handleSubmit() {
+		if ( !this.props.isAuth ) {
+			message.warning('请登录后在进行操作');
+			return;
+		}
+
 		const {
 			title,
 			tab,
@@ -109,16 +134,19 @@ class CreateTopic extends Component {
 			this.titleInput.focus();
 			return;
 		}
+
 		if ( title.trim().length < 10 ) {
 			message.warning('标题字数不能少于十个字');
 			this.titleInput.focus();
 			return;
 		}
+
 		if ( !htmlContent || !plainText ) {
 			message.warning('话题内容不能为空');
 			this.editor.focus();
 			return;
 		}
+
 		const decodeHtmlContent = decodeURIComponent( htmlContent );
 		this.createTocpic( title, tab, decodeHtmlContent );
 	}
@@ -152,7 +180,8 @@ class CreateTopic extends Component {
       initialContent: null,
       onChange: this.handleChange,
 			onHTMLChange: this.handleHTMLChange,
-			placeholder: '输入话题内容...',
+			placeholder: this.props.isAuth ? '输入话题内容...' : '登录后才可以创建话题~',
+			disabled: !this.props.isAuth,
 		};
 
 		return (
@@ -182,7 +211,7 @@ class CreateTopic extends Component {
 					</label>
 				</div>
 				<BraftEditor {...editorProps} ref={ (editor) => { this.editor = editor; } } />
-				<div className="submit-btn" onClick={ this.handleSubmit } >提交</div>
+				<div className="submit-btn" onClick={ this.handleSubmitWrapper } >提交</div>
 			</CreateTopicSection>
 		);
 	}

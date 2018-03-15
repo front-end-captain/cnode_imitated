@@ -28,10 +28,19 @@ const PaginationWrapper = styled.div`
 	{ saveTopicListAsk, changeTopicListAskPageIndex },
 )
 class TopicListAsk extends Component {
+	static propTypes = {
+		location: PropTypes.instanceOf( Object ).isRequired,
+		topicListAsk: PropTypes.instanceOf( Array ),
+		saveTopicListAsk: PropTypes.instanceOf( Function ),
+		changeTopicListAskPageIndex: PropTypes.instanceOf( Function ),
+		topicListAskPageIndex: PropTypes.number,
+	}
+
 	constructor() {
 		super();
 		this.state = {
 			loadFail: false,
+			loading: false,
 		};
 		this.getTopicListAsk = this.getTopicListAsk.bind( this );
 		this.onPageNumChange = this.onPageNumChange.bind( this );
@@ -44,6 +53,7 @@ class TopicListAsk extends Component {
 	}
 
 	async onPageNumChange( current, pageSize ) {
+		this.setState({ loading: true });
 		const type = this.type;
 		const page = current;
 		const limit = pageSize;
@@ -53,6 +63,7 @@ class TopicListAsk extends Component {
 			if ( res.status === 200 && res.data.success ) {
 				this.props.saveTopicListAsk( normalizeTopicList(res.data.data) );
 				this.props.changeTopicListAskPageIndex( current );
+				this.setState({ loading: false });
 			} else {
 				this.setState({ loadFail: true });
 			}
@@ -66,6 +77,7 @@ class TopicListAsk extends Component {
 		if ( this.props.topicListAsk.length > 0 ) {
 			return;
 		}
+		this.setState({ loading: true });
 		const type = this.type;
 		const page = 1;
 		const limit = this.LIMIT;
@@ -74,6 +86,7 @@ class TopicListAsk extends Component {
 			res = await axios.get(`/api/topics?tab=${type}&page=${page}&limit=${limit}`);
 			if ( res.status === 200 && res.data.success ) {
 				this.props.saveTopicListAsk( normalizeTopicList(res.data.data) );
+				this.setState({ loading: false });
 			} else {
 				this.setState({ loadFail: true });
 			}
@@ -90,7 +103,7 @@ class TopicListAsk extends Component {
 		if ( this.state.loadFail ) {
 			return <LoadingContainer><NoResult text="数据加载失败" /></LoadingContainer>;
 		}
-		if ( this.props.topicListAsk.length === 0 ) {
+		if ( this.state.loading ) {
 			return <LoadingContainer><Loading /></LoadingContainer>;
 		}
 		return [
@@ -106,13 +119,5 @@ class TopicListAsk extends Component {
 		];
 	}
 }
-
-TopicListAsk.propTypes = {
-	location: PropTypes.instanceOf( Object ).isRequired,
-	topicListAsk: PropTypes.instanceOf( Array ),
-	saveTopicListAsk: PropTypes.instanceOf( Function ),
-	changeTopicListAskPageIndex: PropTypes.instanceOf( Function ),
-	topicListAskPageIndex: PropTypes.number,
-};
 
 export default TopicListAsk;

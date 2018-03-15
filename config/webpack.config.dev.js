@@ -114,7 +114,7 @@ const config = {
 
 	devServer: {
 		open: true,
-		host: "0.0.0.0",
+		host: "localhost",
 		port: "8080",
 		contentBase: BUILD_PATH,
 		hot: true,

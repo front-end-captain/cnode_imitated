@@ -144,7 +144,6 @@ class Login extends Component {
 						type="text"
 						placeholder="请输入 accesstoken"
 						onChange={ this.handleChange }
-						onKeyDown={ this.handleLogin }
 						ref={ input => this.input = input }
 					/>
 					<span className="tip">{ this.state.loginFail ? '登录失败' : '' }</span>

@@ -1,11 +1,18 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-debugger */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 import styled from 'styled-components';
 import marked from 'marked';
 import moment from 'moment';
+import BraftEditor from 'braft-editor';
+import 'braft-editor/dist/braft.css';
+import { connect } from 'react-redux';
+import { message } from 'antd';
 import NoResult from './../../components/NoResult/no_result.jsx';
 import Loading from './../../components/Loading/loading.jsx';
+import ReplyArea from './../ReplyArea/reply_area.jsx';
 
 
 const LoadingContainer = styled.div`
@@ -59,6 +66,39 @@ const TopicDetailSection = styled.div`
 		border-radius: 10px;
 		div:first-child {
 			border-radius: 10px 10px 0 0;
+		}
+	}
+	.publish-comment-area {
+		margin-top: 10px;
+		background-color: #fff;
+		border-radius: 10px;
+		.publish-header {
+			position: relative;
+			height: 40px;
+			border-radius: 10px 10px 0 0;
+			background-color: #deeaea;
+			line-height: 40px;
+			text-indent: 1rem;
+			box-shadow: 0px 4px 11px 2px #ccc;
+			display: flex;
+			align-items: center;
+			.submit-btn {
+				position: absolute;
+				right: 10px;
+				display: inline-block;
+				width: 100px;
+				height: 30px;
+				line-height: 30px;
+				text-indent: 0;
+				text-align: center;
+				border-radius: 10px;
+				cursor: pointer;
+				color: #fff;
+				background-color: #0088cc;
+				&:hover {
+					background-color: lightblue;
+				}
+			}
 		}
 	}
 
@@ -426,46 +466,34 @@ const TypeBtn = styled.span`
 	color: ${( props ) => { return props.primary ? '#fff' : '#999'; }};
 	background-color: ${( props ) => { return props.primary ? '#80bd01' : '#e5e5e5'; }};
 `;
-const ReplyItem = styled.div`
-	position: relative;
-	padding: 10px;
-	font-size: 14px;
-	border-top: 1px solid #f0f0f0;
-	min-height: 70px;
-	.header {
-		display: flex;
-		height: 30px;
-		line-height: 30px;
-		.user-avatar {
-			img {
-				width: 30px;
-				height: 30px;
-				border-radius: 3px;
-			}
-		}
-		.info {
-			.loginname {
-				font-weight: 700;
-				color: #666;
-			}
-			margin-left: 10px;
-			display: inline-block;
-		}
-		.ups {
-			position: absolute;
-			right: 0;
-		}
-
-	}
-	.content {
-		padding-left: 50px;
-	}
-`;
 
 
+const emptyContent = ( initText = '' ) => {
+	return {
+		blocks: [
+			{
+				data: {},
+				depth: 0,
+				entityRanges: [],
+				inlineStyleRanges: [],
+				key: '',
+				text: initText,
+				type: 'unstyled',
+			},
+		],
+		entityMap: {},
+	};
+};
+
+@connect(
+	state => state.user,
+	null,
+)
 class TopicDetail extends Component {
 	static propTypes = {
 		match: PropTypes.instanceOf( Object ),
+		isAuth: PropTypes.bool.isRequired,
+		userInfo: PropTypes.instanceOf( Object ).isRequired,
 	}
 
 	constructor() {
@@ -473,9 +501,16 @@ class TopicDetail extends Component {
 		this.state = {
 			loadFail: false,
 			articleContent: null,
+			commentHtmlContent: '',
+			commentPlainContent: '',
 		};
 
 		this.getArticleDetail = this.getArticleDetail.bind( this );
+		this.handleSubmitComment = this.handleSubmitComment.bind( this );
+		this.handleChange = this.handleChange.bind( this );
+		this.handleHTMLChange = this.handleHTMLChange.bind( this );
+		this.postComment = this.postComment.bind( this );
+		this.createReply = this.createReply.bind( this );
 	}
 
 	componentDidMount() {
@@ -487,7 +522,6 @@ class TopicDetail extends Component {
 		let res = null;
 		try {
 			res = await axios.get(`/api/topic/${id}`);
-			console.log( res );
 			if ( res.status === 200 && res.data.success ) {
 				this.setState({ articleContent: res.data.data });
 			} else {
@@ -496,6 +530,74 @@ class TopicDetail extends Component {
 		} catch ( error ) {
 			console.log( error );
 			this.setState({ loadFail: true });
+		}
+	}
+
+	handleHTMLChange( html ) {
+		this.setState({ commentHtmlContent: html });
+	}
+
+	handleChange( content ) {
+		const commentsArr = content.blocks.map( block => block.text );
+		const commentStr = commentsArr.join('');
+		this.setState({ commentPlainContent: commentStr });
+	}
+
+	handleSubmitComment() {
+		// 非空判断
+		const { commentHtmlContent, commentPlainContent } = this.state;
+		if ( !this.props.isAuth ) {
+			message.error('登录后才可以评论~');
+			return;
+		}
+		if ( commentPlainContent.trim().length === 0 ) {
+			message.warning('评论内容不能为空');
+			this.editor.focus();
+			return;
+		}
+
+		const { id } = this.state.articleContent;
+		this.postComment( id, commentHtmlContent );
+	}
+
+	createReply( id ) {
+		return {
+			author: {
+				avatar_url: this.props.userInfo.avatar_url,
+				loginname: this.props.userInfo.loginname,
+			},
+			content: this.state.commentHtmlContent,
+			create_at: moment.utc(),
+			id,
+			is_uped: false,
+			reply_id: null,
+			ups: [],
+		};
+	}
+
+	async postComment( replyId, content ) {
+		let res = null;
+		try {
+			res = await axios.post(`/api/topic/${replyId}/replies?needAccessToken=true`, { content });
+			if ( res.status === 200 && res.data.success ) {
+				const id = res.data.reply_id;
+				const newComments = this.createReply(id);
+				const replies = this.state.articleContent.replies;
+				replies.push( newComments );
+				const topicDetail = this.state.articleContent;
+				topicDetail.replies = replies;
+				this.setState({ articleContent: topicDetail });
+				// 评论成功
+				message.success('评论成功');
+				this.editor.setContent( emptyContent() );
+			} else {
+				// 评论失败
+				message.error('评论失败');
+			}
+		} catch ( error ) {
+			console.log( error );
+			// 评论失败
+			message.error('评论失败');
 		}
 	}
 
@@ -510,6 +612,15 @@ class TopicDetail extends Component {
 		const {
 			top, good, title, create_at, author, visit_count, last_reply_at, content, tab, replies,
 		} = this.state.articleContent;
+
+		const editorProps = {
+      height: 200,
+      initialContent: null,
+      onChange: this.handleChange,
+			onHTMLChange: this.handleHTMLChange,
+			placeholder: this.props.isAuth ? '输入您的评论内容...' : '登录后可以评论',
+			disabled: !this.props.isAuth,
+		};
 
 		return (
 			<TopicDetailSection>
@@ -547,32 +658,24 @@ class TopicDetail extends Component {
 				{/* 话题详情内容 结束 */}
 
 				{/* 话题详情回复 开始 */}
-				<div className="topic-reply">
-					{
-						replies.map( ( item, index ) => {
-							return (
-								<ReplyItem key={ item.id }>
-									<div className="header">
-										<a href="" className="user-avatar">
-											<img src={ item.author.avatar_url } alt={ item.author.loginname }/>
-										</a>
-										<p className="info">
-											<span className="loginname">{ item.author.loginname }&nbsp;</span>
-											{ index + 1 }楼 · { moment(item.create_at ).fromNow() }
-											{ item.author.loginname === author.loginname ? <span>作者</span> : null }
-										</p>
-										<span className="ups">{ item.ups.length }</span>
-									</div>
-									<div
-										className="content"
-										dangerouslySetInnerHTML={{ __html: marked(item.content) }}
-									/>
-								</ReplyItem>
-							);
-						})
-					}
-				</div>
+				<ReplyArea
+					replies={ replies }
+					author={ author }
+					ref={ replyarea => this.replyarea = replyarea }
+				/>
 				{/* 话题详情回复 结束 */}
+
+				<div className="publish-comment-area">
+					<div className="publish-header">
+						<span>发表评论</span>
+						<div className="submit-btn"title="发表评论" onClick={ this.handleSubmitComment} >
+							发表
+						</div>
+					</div>
+					<div className="editor-wrapper">
+						<BraftEditor { ...editorProps } ref={ editor => this.editor = editor} />
+					</div>
+				</div>
 
 			</TopicDetailSection>
 		);
