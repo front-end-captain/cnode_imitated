@@ -634,15 +634,6 @@ class TopicDetail extends Component {
 			disabled: !this.props.isAuth,
 		};
 
-		const editorProps = {
-      height: 200,
-      initialContent: null,
-      onChange: this.handleChange,
-			onHTMLChange: this.handleHTMLChange,
-			placeholder: this.props.isAuth ? '输入您的评论内容...' : '登录后可以评论',
-			disabled: !this.props.isAuth,
-		};
-
 		return (
 			<TopicDetailSection>
 

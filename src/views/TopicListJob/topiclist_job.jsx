@@ -35,7 +35,6 @@ class TopicListJob extends Component {
 		changeTopicListJobPageIndex: PropTypes.instanceOf( Function ),
 		topicListJobPageIndex: PropTypes.number,
 	}
-	
 	constructor() {
 		super();
 		this.state = {

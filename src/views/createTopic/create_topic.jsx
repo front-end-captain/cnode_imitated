@@ -115,10 +115,6 @@ class CreateTopic extends Component {
 		throttle( this.handleSubmit, this );
 	}
 
-	handleSubmitWrapper() {
-		throttle( this.handleSubmit, this );
-	}
-
 	handleSubmit() {
 		if ( !this.props.isAuth ) {
 			message.warning('请登录后在进行操作');
