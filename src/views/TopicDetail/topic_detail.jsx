@@ -10,9 +10,10 @@ import BraftEditor from 'braft-editor';
 import 'braft-editor/dist/braft.css';
 import { connect } from 'react-redux';
 import { message } from 'antd';
+import ReplyArea from './../ReplyArea/reply_area.jsx';
 import NoResult from './../../components/NoResult/no_result.jsx';
 import Loading from './../../components/Loading/loading.jsx';
-import ReplyArea from './../ReplyArea/reply_area.jsx';
+import { throttle, normalizeCommentData } from './../../common/js/topicList.js';
 
 
 const LoadingContainer = styled.div`
@@ -524,11 +525,12 @@ class TopicDetail extends Component {
 			res = await axios.get(`/api/topic/${id}`);
 			if ( res.status === 200 && res.data.success ) {
 				this.setState({ articleContent: res.data.data });
+				this.setState({ replies: res.data.data.replies });
 			} else {
 				this.setState({ loadFail: true });
 			}
 		} catch ( error ) {
-			console.log( error );
+			console.error( error );
 			this.setState({ loadFail: true });
 		}
 	}
@@ -610,8 +612,27 @@ class TopicDetail extends Component {
 		}
 
 		const {
-			top, good, title, create_at, author, visit_count, last_reply_at, content, tab, replies,
+			top, good, title, create_at, author, visit_count, last_reply_at, content, tab,
 		} = this.state.articleContent;
+		const { replies } = this.state.replies;
+		const renderTypeBtn = () => {
+			if ( top ) {
+				return <TypeBtn primary>置顶</TypeBtn>;
+			}
+			if ( good ) {
+				return <TypeBtn primary>精华</TypeBtn>;
+			}
+			return null;
+		};
+
+		const editorProps = {
+      height: 150,
+      initialContent: null,
+      onChange: this.handleChange,
+			onHTMLChange: this.handleHTMLChange,
+			placeholder: this.props.isAuth ? '输入评论内容...' : '登录后方可评论',
+			disabled: !this.props.isAuth,
+		};
 
 		const editorProps = {
       height: 200,
@@ -628,15 +649,7 @@ class TopicDetail extends Component {
 				{/* 话题详情头部 开始 */}
 				<div className="topic-header">
 					<h2 className="title">
-						{
-							top
-								? <TypeBtn primary>置顶</TypeBtn>
-								: (
-									good
-										? <TypeBtn primary>精华</TypeBtn>
-										: null
-									)
-						}&nbsp;
+						{ renderTypeBtn() }&nbsp;
 						{ title }
 					</h2>
 					<p className="info">

@@ -17,7 +17,7 @@ class App extends Component {
 
 	componentDidCatch( error, info ) {
 		if ( error ) {
-			console.log( error, info );
+			console.error( error, info );
 			this.setState({ hasError: true });
 		}
 	}
@@ -30,7 +30,7 @@ class App extends Component {
 				<Header key="header" />,
 				<HelmetSection key="helmetsection" />,
 				<Switch key="switch">
-					<Route path="/" exact render={ () => <Redirect to="/list" />} />
+					<Route path="/" exact render={ () => <Redirect to="/list" /> } />
 					<Route path="/list" component={ TopicList } />
 					<Route path="/detail/:id" component={ TopicDetail } />
 					<Route path="/test" component={ ApiTest } />

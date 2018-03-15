@@ -90,7 +90,6 @@ class CreateTopic extends Component {
 			tab: 'dev',
 			plainText: '',
 		};
-
 		this.handleHTMLChange = this.handleHTMLChange.bind( this );
 		this.handleSubmit = this.handleSubmit.bind( this );
 		this.createTocpic = this.createTocpic.bind( this );
@@ -116,6 +115,10 @@ class CreateTopic extends Component {
 		throttle( this.handleSubmit, this );
 	}
 
+	handleSubmitWrapper() {
+		throttle( this.handleSubmit, this );
+	}
+
 	handleSubmit() {
 		if ( !this.props.isAuth ) {
 			message.warning('请登录后在进行操作');
@@ -128,6 +131,11 @@ class CreateTopic extends Component {
 			htmlContent,
 			plainText,
 		} = this.state;
+
+		if ( !this.props.isAuth ) {
+			message.warning('您还没有登录，登录后方可评论');
+			return;
+		}
 
 		if ( !title.trim() ) {
 			message.warning('标题内容不能为空');
