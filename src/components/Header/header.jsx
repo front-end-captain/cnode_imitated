@@ -21,17 +21,21 @@ const HeaderSection = styled.div`
 		height: 34px;
 		float: left;
 	}
+
 	nav {
 		display: block;
 		float: right;
+
 		a {
 			color: white;
 			margin: 0 15px;
 			text-decoration: none;
+
 			&:hover {
 				color: orange;
 			}
 		}
+
 		a.active {
 			color: orange;
 		}

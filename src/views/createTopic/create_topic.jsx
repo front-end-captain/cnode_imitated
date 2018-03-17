@@ -10,6 +10,7 @@ import { throttle } from './../../common/js/topicList.js';
 
 const CreateTopicSection = styled.div`
 	padding: 20px;
+
 	.header {
 		width: 100%;
 		height: 30px;
@@ -18,6 +19,7 @@ const CreateTopicSection = styled.div`
 		background-color: #d4e2e2;
 		border-bottom: 1px solid #ccc;
 	}
+
 	.title {
 		margin-top: 10px;
 		height: 40px;
@@ -34,11 +36,13 @@ const CreateTopicSection = styled.div`
 			}
 		}
 	}
+
 	.tab {
 		margin-top: 10px;
 		height: 40px;
 		line-height: 40px;
 		padding-bottom: 10px;
+
 		label {
 			select {
 				width: 100px;
@@ -51,6 +55,7 @@ const CreateTopicSection = styled.div`
 			}
 		}
 	}
+
 	.submit-btn {
 		width: 100px;
 		height: 40px;
@@ -62,10 +67,12 @@ const CreateTopicSection = styled.div`
 		background-color: lightblue;
 		text-align: center;
 		transition: all 0.5s;
+
 		&:hover {
 			background: lightcoral;
 		}
 	}
+
 	.BraftEditor-container {
 		margin-top: 10px;
 		border-top: 1px solid #ccc;

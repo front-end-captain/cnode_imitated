@@ -58,6 +58,11 @@ const config = {
 					cacheDirectory: true
 				}
 			},
+			{
+				test: /\.(js|jsx)$/,
+				loader: require.resolve("stylelint-custom-processor-loader"),
+				exclude: /node_modules/
+			},
 			// 由于使用 styled-components 所以要将 css 抽取出来 从外部引入
 			// 同时启用 sourceMap 方便调试 css 代码
 			{
@@ -132,8 +137,8 @@ const config = {
 
 	plugins: [
 		new webpack.DefinePlugin({
-			'process.env': {
-				NODE_ENV: JSON.stringify('development')
+			"process.env": {
+				NODE_ENV: JSON.stringify("development")
 			}
 		}),
 		// 开发环境下仍然清除 build 目录 防止浏览器请求 build 目录下过期的文件
@@ -150,7 +155,9 @@ const config = {
 		}),
 		// 开发环境和生产环境下的服务端渲染模版文件
 		new HtmlWebpackPlugin({
-			template: "!!ejs-compiled-loader!" + path.resolve(__dirname, "./../src/server.template.ejs"),
+			template:
+				"!!ejs-compiled-loader!" +
+				path.resolve(__dirname, "./../src/server.template.ejs"),
 			filename: "server.ejs",
 			favicon: path.resolve(__dirname, "./../cnode.ico")
 		}),

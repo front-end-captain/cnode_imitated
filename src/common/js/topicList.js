@@ -26,9 +26,9 @@ export const normalizeCommentData = ({ content, avatar_url, loginname }) => {
 };
 
 
-export const throttle = ( method, context ) => {
+export const throttle = ( method, context, ...args ) => {
 	method.timer && clearTimeout(method.timer);
 	method.timer = setTimeout(() => {
-		method.call(context);
+		method.call(context, args);
 	}, 200);
 };

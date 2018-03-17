@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 const NoResultSection = styled.div`
 	width: 128px;
 	height: 128px;
+
 	p {
 		margin-top: 10px;
 		color: green;

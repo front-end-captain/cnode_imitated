@@ -14,14 +14,15 @@ const LogoutPage = styled.div`
 	.cover {
 		width: 100%;
 		height: 100%;
-		background: rgba( 0, 0, 0, 0.65 );
+		background: rgba(0, 0, 0, 0.65);
 		z-index: 99;
 	}
+
 	.logout-panel {
 		position: absolute;
 		top: 50%;
 		left: 50%;
-		transform: translate( -50%, -50% );
+		transform: translate(-50%, -50%);
 		width: 30%;
 		height: 200px;
 		background-color: #fff;
@@ -29,6 +30,7 @@ const LogoutPage = styled.div`
 		border-radius: 10px;
 		display: flex;
 		flex-direction: column;
+
 		.text {
 			display: flex;
 			width: 100%;
@@ -40,36 +42,42 @@ const LogoutPage = styled.div`
 			font-size: 18px;
 			color: #666;
 		}
+
 		.btn-group {
 			width: 100%;
 			display: flex;
-			flex-direction; column;
+			flex-direction: column;
 			flex: 1 1;
+
 			.btn {
 				display: flex;
 				flex: 1 1;
 				justify-content: center;
 				align-items: center;
 				cursor: pointer;
+
 				&:hover {
 					background-color: lightblue;
 				}
 			}
+
 			.cancel-btn {
 				border-right: 0.5px solid #ccc;
+
 				&:hover {
 					border-radius: 0 0 0 10px;
 				}
 			}
+
 			.confirm-btn {
 				border-left: 0.5px solid #ccc;
+
 				&:hover {
 					border-radius: 0 0 10px 0;
 				}
 			}
 		}
 	}
-
 `;
 
 @connect(

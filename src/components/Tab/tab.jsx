@@ -12,6 +12,7 @@ const TabSection = styled.div`
 	a {
 		color: green;
 		margin: 0 20px;
+
 		&.active {
 			span {
 				padding: 2px 3px;

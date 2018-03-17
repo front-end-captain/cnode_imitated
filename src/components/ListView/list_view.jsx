@@ -13,6 +13,7 @@ const ListViewSection = styled.div`
 	ul {
 		width: 100%;
 		min-height: 300px;
+
 		li {
 			height: 50px;
 			line-height: 50px;
@@ -21,55 +22,67 @@ const ListViewSection = styled.div`
 			justify-content: center;
 			align-items: center;
 			border-bottom: 1px solid #f0f0f0;
+
 			&:hover {
 				background-color: #f0f0f0;
 			}
+
 			.avatar {
 				flex: 1 1;
 				display: block;
 				position: relative;
 				background-color: lightpink;
+
 				img {
 					position: absolute;
 					top: 50%;
 					left: 50%;
 					width: 30px;
 					height: 30px;
-					transform: translate( -50%, -50% );
+					transform: translate(-50%, -50%);
 				}
 			}
+
 			.amount {
 				flex: 1 1;
+
 				span:first-child {
 					color: #9e78c0;
 					font-size: 14px;
 				}
+
 				span:last-child {
 					color: #b4b4b4;
 					font-size: 12px;
 				}
 			}
+
 			.topic-type {
 				flex: 0.5 1;
 			}
+
 			.title {
 				flex: 10 1;
 				text-overflow: ellipsis;
 				white-space: nowrap;
 				overflow: hidden;
+
 				a:hover {
 					text-decoration: underline;
 				}
 			}
+
 			.last-apply {
 				flex: 2 1;
 				text-align: right;
+
 				a {
 					img {
 						width: 18px;
 						height: 18px;
 					}
 				}
+
 				span {
 					color: #778077;
 					font-size: 12px;

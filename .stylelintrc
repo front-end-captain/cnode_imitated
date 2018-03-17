@@ -1,0 +1,16 @@
+{
+  "processors": ["stylelint-processor-styled-components"],
+  "extends": [
+    "stylelint-config-standard",
+    "stylelint-config-styled-components"
+  ],
+  "syntax": "css",
+	"rules": {
+		"indentation": ["tab", {
+      "except": ["value"]
+		}],
+		"no-descending-specificity": null,
+		"comment-empty-line-before": null,
+		"selector-pseudo-element-colon-notation": "single"
+	}
+}

@@ -11,21 +11,21 @@ import { saveUserInfo, setAuth } from './../../store/user.store.js';
 const LoginPage = styled.div`
 	position: fixed;
 	top: 0;
-	height: 0;
 	width: 100%;
 	height: 100%;
 
 	.cover-layer {
 		width: 100%;
 		height: 100%;
-		background: rgba( 0, 0, 0, 0.65 );
+		background: rgba(0, 0, 0, 0.65);
 		z-index: 99;
 	}
+
 	.login-panel {
 		position: absolute;
 		left: 50%;
 		top: 50%;
-		transform: translate( -50%, -50% );
+		transform: translate(-50%, -50%);
 		width: 30%;
 		height: 220px;
 		background-color: #fff;
@@ -41,10 +41,12 @@ const LoginPage = styled.div`
 			height: 40px;
 			text-indent: 1rem;
 			color: #666;
+
 			:focus {
 				border-bottom-color: lightblue;
 			}
 		}
+
 		button {
 			width: 90%;
 			height: 30px;
@@ -56,20 +58,21 @@ const LoginPage = styled.div`
 			outline: none;
 			cursor: pointer;
 			border-radius: 5px;
+
 			:hover {
 				background-color: lightblue;
 				color: #000;
 			}
 		}
+
 		.tip {
 			font-size: 12px;
 			color: darkred;
 			position: relative;
 			left: 20px;
-			top: -16px
+			top: -16px;
 		}
 	}
-
 `;
 
 @connect(
