@@ -5,11 +5,13 @@ import styled from 'styled-components';
 import marked from 'marked';
 import moment from 'moment';
 import { connect } from 'react-redux';
+import { message } from 'antd';
 import ReplyArea from './../ReplyArea/reply_area.jsx';
 import NoResult from './../../components/NoResult/no_result.jsx';
 import Loading from './../../components/Loading/loading.jsx';
 import { saveCommentsOfTopic } from './../../store/topicDetail.store.js';
 import CustomEditor from './../../components/Editor/editor.jsx';
+import { throttle } from './../../common/js/topicList.js';
 
 const LoadingContainer = styled.div`
 	width: 100%;
@@ -54,6 +56,7 @@ const TopicDetailSection = styled.div`
 			border-radius: 10px;
 			padding: 10px 20px;
 			cursor: pointer;
+			outline: none;
 
 			&:hover {
 				background-color: lightgreen;
@@ -531,9 +534,14 @@ class TopicDetail extends Component {
 			loadFail: false,
 			loading: false,
 			topicContent: null,
+			isCollected: false,
 		};
 
 		this.getArticleDetail = this.getArticleDetail.bind( this );
+		this.handleCollectWrapper = this.handleCollectWrapper.bind(this);
+		this.handleCollect = this.handleCollect.bind(this);
+		this.collectTopic = this.collectTopic.bind(this);
+		this.deCollectTopic = this.deCollectTopic.bind(this);
 	}
 
 	componentDidMount() {
@@ -541,6 +549,7 @@ class TopicDetail extends Component {
 		this.getArticleDetail( id );
 	}
 
+	// 获取话题详情内容
 	async getArticleDetail( id ) {
 		this.setState({ loading: true });
 		let res = null;
@@ -548,7 +557,7 @@ class TopicDetail extends Component {
 			res = await axios.get(`/api/topic/${id}`);
 			if ( res.status === 200 && res.data.success ) {
 				this.setState({ topicContent: res.data.data });
-				this.setState({ loading: false });
+				this.setState({ loading: false, isCollected: res.data.data.is_collect });
 				this.props.saveCommentsOfTopic(res.data.data.replies);
 			} else {
 				this.setState({ loadFail: true });
@@ -556,6 +565,64 @@ class TopicDetail extends Component {
 		} catch ( error ) {
 			console.error( error );
 			this.setState({ loadFail: true });
+		}
+	}
+
+	handleCollectWrapper() {
+		throttle(this.handleCollect, this);
+	}
+
+	// 收藏 / 取消收藏
+	handleCollect() {
+		// post /api/topic_collect/collect params: { accesstoken, topic_id }
+		if ( !this.props.user.isAuth ) {
+			message.warning('您还没有登录~');
+			return;
+		}
+
+		const { id } = this.state.topicContent;
+		if (this.state.isCollected) {
+			this.deCollectTopic(id);
+		} else {
+			this.collectTopic(id);
+		}
+	}
+
+	async collectTopic(id) {
+		let res = null;
+		try {
+			res = axios.post('/api/topic_collect/collect?needAccessToken=true', { topic_id: id });
+			if ( res.status === 200 && res.data.success ) {
+				// TODO: 收藏成功
+				message.success('已收藏');
+				this.setState({ isCollected: true });
+			} else {
+				// TODO: 收藏失败
+				message.warning('收藏失败');
+			}
+		} catch (error) {
+			if ( error.response ) {
+				message.error(`收藏失败${error.response.data.error_mag}`);
+			}
+		}
+	}
+
+	async deCollectTopic(id) {
+		let res = null;
+		try {
+			res = axios.post('/api/topic_collect/de_collect?needAccessToken=true', { topic_id: id });
+			if ( res.status === 200 && res.data.success ) {
+				// 取消成功
+				message.success('取消成功');
+				this.setState({ isCollected: false });
+			} else {
+				// 取消失败
+				message.warning('取消失败');
+			}
+		} catch (error) {
+			if (error.response) {
+				message.error(`取消失败${error.response.data.error_mag}`);
+			}
 		}
 	}
 
@@ -599,7 +666,9 @@ class TopicDetail extends Component {
 							最后一次回复是 { moment(last_reply_at).fromNow() } |
 							来自于 { tab }
 						</p>
-						<button className="collect-btn">收藏</button>
+						<button className="collect-btn" onClick={this.handleCollectWrapper} >
+							{ this.state.isCollected ? '已收藏' : '收藏' }
+						</button>
 					</div>
 					{/* 话题详情头部 结束 */}
 
