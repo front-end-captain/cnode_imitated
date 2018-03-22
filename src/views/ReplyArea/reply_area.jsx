@@ -1,8 +1,3 @@
-/* eslint-disable no-useless-return */
-/* eslint-disable no-unreachable */
-/* eslint-disable no-debugger */
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-cond-assign */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
@@ -11,12 +6,14 @@ import marked from 'marked';
 import { connect } from 'react-redux';
 import axios from 'axios';
 import { message } from 'antd';
-import BraftEditor from 'braft-editor';
-import 'braft-editor/dist/braft.css';
 import { throttle } from './../../common/js/topicList.js';
+import CustomEditor from './../../components/Editor/editor.jsx';
+import { updateCommentsOfTopic } from './../../store/topicDetail.store.js';
+
 
 const replyBtnIcon = require('./reply-btn.png');
 const likeBtnIcon = require('./like.png');
+
 
 const ReplyItem = styled.div`
 	position: relative;
@@ -82,29 +79,8 @@ const ReplyItem = styled.div`
 
 	.editor-area {
 		position: relative;
-		height: 0;
-		padding-bottom: 30px;
+		display: none;
 		box-sizing: border-box;
-		transition: all 0.5s;
-
-		.submit-reply-btn {
-			position: absolute;
-			width: 80px;
-			height: 30px;
-			line-height: 30px;
-			text-align: center;
-			right: 0;
-			bottom: 0;
-			background-color: lightblue;
-			border-radius: 6px;
-			user-select: none;
-			cursor: pointer;
-			visibility: hidden;
-
-			&:hover {
-				background-color: lightcyan;
-			}
-		}
 	}
 `;
 const TypeBtn = styled.span`
@@ -123,8 +99,9 @@ const TypeBtn = styled.span`
 const parents = (element, selector) => {
   const elements = [];
   let elem = element;
-  const isWithSelector = selector !== undefined;
+	const isWithSelector = selector !== undefined;
 
+	/* eslint-disable no-cond-assign */
   while ((elem = elem.parentElement) !== null) {
     if (elem.nodeType === Node.ELEMENT_NODE) {
       if (!isWithSelector || elem.matches(selector)) {
@@ -137,93 +114,28 @@ const parents = (element, selector) => {
 };
 
 @connect(
-	state => state.user,
-	null,
+	(state) => {
+		return {
+			user: state.user,
+			comments: state.topicDetailComments.topicComments,
+		};
+	},
+	{ updateCommentsOfTopic },
 )
 class ReplyArea extends Component {
 	static propTypes = {
-		replies: PropTypes.instanceOf(Array).isRequired,
+		comments: PropTypes.instanceOf(Array).isRequired,
+		user: PropTypes.instanceOf(Object).isRequired,
 		author: PropTypes.instanceOf(Object).isRequired,
-		isAuth: PropTypes.bool.isRequired,
-		userInfo: PropTypes.instanceOf(Object).isRequired,
-		topicId: PropTypes.number.isRequired,
+		topicId: PropTypes.string.isRequired,
+		updateCommentsOfTopic: PropTypes.func.isRequired,
 	};
 
 	constructor() {
 		super();
-		this.state = {
-			replies: [],
-			replyPlainContent: '',
-			replyHtmlContent: '',
-		};
-		this.handleSubmitReply = this.handleSubmitReply.bind(this);
+
 		this.handleLike = this.handleLike.bind(this);
 		this.toggleEditor = this.toggleEditor.bind(this);
-		this.handleSubmitReplyWrapper = this.handleSubmitReplyWrapper.bind(this);
-		this.postReply = this.postReply.bind(this);
-		this.onChange = this.onChange.bind(this);
-		this.onHTMLChange = this.onHTMLChange.bind(this);
-	}
-
-	// 为什么不可以在 componentDidMount 调用 setState 方法
-	componentWillMount() {
-		this.setState({ replies: this.props.replies });
-	}
-
-	onChange(content) {
-		console.log( content );
-		const replysArr = content.blocks.map( block => block.text );
-		const replyStr = replysArr.join('');
-		this.setState({ replyPlainContent: replyStr });
-	}
-
-	onHTMLChange(html) {
-		this.setState({ replyHtmlContent: html });
-	}
-
-	// handleSubmitReply 方法包装器
-	handleSubmitReplyWrapper(id) {
-		throttle(this.handleSubmitReply, this, id);
-	}
-
-	handleSubmitReply(args) {
-		if ( !this.props.isAuth ) {
-			message.warning('登录后才可以进行回复~');
-			return;
-		}
-
-		const { replyPlainContent, replyHtmlContent } = this.state;
-		debugger;
-		if ( replyPlainContent.trim().length === 0 ) {
-			message.warning('请输入评论内容');
-			return;
-		}
-
-		const topicId = this.props.topicId;
-		const replyId = args[0];
-
-		this.postReply(topicId, replyId, replyHtmlContent);
-	}
-
-	async postReply(topicId, replyId, content) {
-		let res = null;
-		try {
-			res = await axios.post(`/api/topic/${topicId}/replies`, { content, replyId });
-			if ( res.status === 200 && res.data.sucess ) {
-				// 回复成功
-				message.success('回复成功');
-			} else {
-				// 回复失败
-				message.warning('回复失败');
-				this.replyEditor.focus();
-			}
-		} catch (error) {
-			if ( error.response ) {
-				// 回复失败
-				message.error(`回复失败${error.response.message}`);
-				this.replyEditor.focus();
-			}
-		}
 	}
 
 	// handleLike 方法包装器  用于函数节流 防止用户快速重复点击
@@ -233,21 +145,21 @@ class ReplyArea extends Component {
 
 	// 点赞
 	async handleLike(args) {
-		if ( !this.props.isAuth ) {
+		if ( !this.props.user.isAuth ) {
 			message.warning('请先登录');
 			return;
 		}
 
 		const loginname = args[1];
 
-		if ( this.props.userInfo.loginname === loginname ) {
+		if ( this.props.user.loginname === loginname ) {
 			message.warning('不能自己给自己的评论点赞喔~');
 			return;
 		}
 
 		const replyId = args[0];
-		const userId = this.props.userInfo.id;
-		const replies = this.state.replies;
+		const userId = this.props.user.userInfo.id;
+		const replies = this.props.comments;
 		const targetReply = replies.find(item => item.id === replyId );
 
 		let res = null;
@@ -264,7 +176,7 @@ class ReplyArea extends Component {
 						}
 						return item;
 					});
-					this.setState({ replies: newReplies });
+					this.props.updateCommentsOfTopic(newReplies);
 					message.success('点赞成功');
 				}	else if ( res.data.action === 'down' ) {
 
@@ -277,8 +189,8 @@ class ReplyArea extends Component {
 						}
 						return item;
 					});
-					this.setState({ replies: newReplies });
-					message.success('取消点赞');
+					this.props.updateCommentsOfTopic(newReplies);
+					message.warning('取消点赞');
 				}
 			} else {
 				// 操作失败
@@ -293,14 +205,14 @@ class ReplyArea extends Component {
 	toggleEditor(event) {
 		const parent = parents(event.target, '.reply-item');
 		const editorArea = parent.querySelector('.editor-area');
-		const submitReplyBtn = parent.querySelector('.submit-reply-btn');
+		// const submitReplyBtn = parent.querySelector('.submit-reply-btn');
 		this.isEditorDisplay = !this.isEditorDisplay;
-		if ( !this.isEditorDisplay ) {
-			editorArea.style.height = '160px';
-			submitReplyBtn.style.visibility = 'visible';
+		if ( this.isEditorDisplay ) {
+			editorArea.style.display = 'block';
+			// submitReplyBtn.style.visibility = 'visible';
 		} else {
-			editorArea.style.height = '0';
-			submitReplyBtn.style.visibility = 'hidden';
+			editorArea.style.display = 'none';
+			// submitReplyBtn.style.visibility = 'hidden';
 		}
 	}
 
@@ -309,15 +221,8 @@ class ReplyArea extends Component {
 
 
 	render() {
-		const replies = this.state.replies;
+		const replies = this.props.comments || [];
 		const author = this.props.author;
-		const editorOptions = {
-			height: 150,
-      initialContent: null,
-      onChange: this.handleChange,
-			onHTMLChange: this.handleHTMLChange,
-			disabled: !this.props.isAuth,
-		};
 
 		return (
 			<div className="topic-reply">
@@ -351,12 +256,13 @@ class ReplyArea extends Component {
 								className="content"
 								dangerouslySetInnerHTML={{ __html: marked(item.content) }}
 							/>
-							<div className="editor-area" >
-								<BraftEditor
-									placeholder={this.props.isAuth ? `@${loginname}` : '登录后才可以创建话题~'}
-									{...editorOptions}
+							<div className="editor-area">
+								<CustomEditor
+									isAuth={this.props.user.isAuth}
+									toReplyUsername={loginname}
+									replyId={id}
+									topicId={this.props.topicId}
 								/>
-								<div className="submit-reply-btn" onClick={ () => this.handleSubmitReplyWrapper(id) } >回复</div>
 							</div>
 						</ReplyItem>
 					);

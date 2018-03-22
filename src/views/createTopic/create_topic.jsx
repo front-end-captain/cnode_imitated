@@ -111,6 +111,7 @@ class CreateTopic extends Component {
 	}
 
 	handleChange( content ) {
+		console.log( content );
 		const topicArr = content.blocks.map((block) => {
 			return block.text;
 		});

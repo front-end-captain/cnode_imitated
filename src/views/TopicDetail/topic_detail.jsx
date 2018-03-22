@@ -1,20 +1,15 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-debugger */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 import styled from 'styled-components';
 import marked from 'marked';
 import moment from 'moment';
-import BraftEditor from 'braft-editor';
-import 'braft-editor/dist/braft.css';
 import { connect } from 'react-redux';
-import { message } from 'antd';
 import ReplyArea from './../ReplyArea/reply_area.jsx';
 import NoResult from './../../components/NoResult/no_result.jsx';
 import Loading from './../../components/Loading/loading.jsx';
-import { throttle, normalizeCommentData } from './../../common/js/topicList.js';
-
+import { saveCommentsOfTopic } from './../../store/topicDetail.store.js';
+import CustomEditor from './../../components/Editor/editor.jsx';
 
 const LoadingContainer = styled.div`
 	width: 100%;
@@ -519,50 +514,27 @@ const TypeBtn = styled.span`
 `;
 
 
-const emptyContent = ( initText = '' ) => {
-	return {
-		blocks: [
-			{
-				data: {},
-				depth: 0,
-				entityRanges: [],
-				inlineStyleRanges: [],
-				key: '',
-				text: initText,
-				type: 'unstyled',
-			},
-		],
-		entityMap: {},
-	};
-};
-
 @connect(
-	state => state.user,
-	null,
+	(state) => { return { user: state.user }; },
+	{ saveCommentsOfTopic },
 )
 class TopicDetail extends Component {
 	static propTypes = {
 		match: PropTypes.instanceOf( Object ),
-		isAuth: PropTypes.bool.isRequired,
-		userInfo: PropTypes.instanceOf( Object ).isRequired,
+		user: PropTypes.instanceOf(Object).isRequired,
+		saveCommentsOfTopic: PropTypes.func.isRequired,
 	}
 
 	constructor() {
 		super();
 		this.state = {
 			loadFail: false,
-			articleContent: null,
-			commentHtmlContent: '',
-			commentPlainContent: '',
+			loading: false,
+			topicContent: null,
 		};
 
 		this.getArticleDetail = this.getArticleDetail.bind( this );
-		this.handleSubmitComment = this.handleSubmitComment.bind( this );
-		this.handleChange = this.handleChange.bind( this );
-		this.handleHTMLChange = this.handleHTMLChange.bind( this );
-		this.postComment = this.postComment.bind( this );
-		this.createReply = this.createReply.bind( this );
-}
+	}
 
 	componentDidMount() {
 		const { id } = this.props.match.params;
@@ -570,11 +542,14 @@ class TopicDetail extends Component {
 	}
 
 	async getArticleDetail( id ) {
+		this.setState({ loading: true });
 		let res = null;
 		try {
 			res = await axios.get(`/api/topic/${id}`);
 			if ( res.status === 200 && res.data.success ) {
-				this.setState({ articleContent: res.data.data });
+				this.setState({ topicContent: res.data.data });
+				this.setState({ loading: false });
+				this.props.saveCommentsOfTopic(res.data.data.replies);
 			} else {
 				this.setState({ loadFail: true });
 			}
@@ -584,157 +559,79 @@ class TopicDetail extends Component {
 		}
 	}
 
-	handleHTMLChange( html ) {
-		this.setState({ commentHtmlContent: html });
-	}
-
-	handleChange( content ) {
-		const commentsArr = content.blocks.map( block => block.text );
-		const commentStr = commentsArr.join('');
-		this.setState({ commentPlainContent: commentStr });
-	}
-
-	handleSubmitComment() {
-		// 非空判断
-		const { commentHtmlContent, commentPlainContent } = this.state;
-		if ( !this.props.isAuth ) {
-			message.error('登录后才可以评论~');
-			return;
-		}
-		if ( commentPlainContent.trim().length === 0 ) {
-			message.warning('评论内容不能为空');
-			this.editor.focus();
-			return;
-		}
-
-		const { id } = this.state.articleContent;
-		this.postComment( id, commentHtmlContent );
-	}
-
-	createReply( id ) {
-		return {
-			author: {
-				avatar_url: this.props.userInfo.avatar_url,
-				loginname: this.props.userInfo.loginname,
-			},
-			content: this.state.commentHtmlContent,
-			create_at: moment.utc(),
-			id,
-			is_uped: false,
-			reply_id: null,
-			ups: [],
-		};
-	}
-
-	async postComment( topicId, content ) {
-		let res = null;
-		try {
-			res = await axios.post(`/api/topic/${topicId}/replies?needAccessToken=true`, { content });
-			if ( res.status === 200 && res.data.success ) {
-				const id = res.data.reply_id;
-				const newComments = this.createReply(id);
-				const replies = this.state.articleContent.replies;
-				replies.push( newComments );
-				const topicDetail = this.state.articleContent;
-				topicDetail.replies = replies;
-				this.setState({ articleContent: topicDetail });
-				// 评论成功
-				message.success('评论成功');
-				this.editor.setContent( emptyContent() );
-			} else {
-				// 评论失败
-				message.error('评论失败');
-			}
-		} catch ( error ) {
-			console.log( error );
-			// 评论失败
-			message.error('评论失败');
-		}
-	}
-
 	render() {
 		if ( this.state.loadFail ) {
 			return <LoadingContainer><NoResult text="数据加载失败了" /></LoadingContainer>;
 		}
-		if ( !this.state.articleContent ) {
+		if ( this.state.loading ) {
 			return <LoadingContainer><Loading /></LoadingContainer>;
 		}
 
-		const {
-			top, good, title, create_at, author, visit_count, last_reply_at, content, tab,
-			replies,
-			id,
-		} = this.state.articleContent;
+		if ( this.state.topicContent ) {
+			const {
+				top, good, title, create_at, author, visit_count, last_reply_at, content, tab,
+				id,
+			} = this.state.topicContent;
 
-		const renderTypeBtn = () => {
-			if ( top ) {
-				return <TypeBtn primary>置顶</TypeBtn>;
-			}
-			if ( good ) {
-				return <TypeBtn primary>精华</TypeBtn>;
-			}
-			return null;
-		};
+			const renderTypeBtn = () => {
+				if ( top ) {
+					return <TypeBtn primary>置顶</TypeBtn>;
+				}
+				if ( good ) {
+					return <TypeBtn primary>精华</TypeBtn>;
+				}
+				return null;
+			};
 
-		const editorProps = {
-      height: 150,
-      initialContent: null,
-      onChange: this.handleChange,
-			onHTMLChange: this.handleHTMLChange,
-			placeholder: this.props.isAuth ? '输入评论内容...' : '登录后方可评论',
-			disabled: !this.props.isAuth,
-		};
+			return (
+				<TopicDetailSection>
 
-		return (
-			<TopicDetailSection>
+					{/* 话题详情头部 开始 */}
+					<div className="topic-header">
+						<h2 className="title">
+							{ renderTypeBtn() }&nbsp;
+							{ title }
+						</h2>
+						<p className="info">
+							发布于 { moment(create_at).fromNow() } |
+							作者 { author.loginname } |
+							&nbsp;{ visit_count } 浏览 |
+							最后一次回复是 { moment(last_reply_at).fromNow() } |
+							来自于 { tab }
+						</p>
+						<button className="collect-btn">收藏</button>
+					</div>
+					{/* 话题详情头部 结束 */}
 
-				{/* 话题详情头部 开始 */}
-				<div className="topic-header">
-					<h2 className="title">
-						{ renderTypeBtn() }&nbsp;
-						{ title }
-					</h2>
-					<p className="info">
-						发布于 { moment(create_at).fromNow() } |
-						作者 { author.loginname } |
-						&nbsp;{ visit_count } 浏览 |
-						最后一次回复是 { moment(last_reply_at).fromNow() } |
-						来自于 { tab }
-					</p>
-					<button className="collect-btn">收藏</button>
-				</div>
-				{/* 话题详情头部 结束 */}
+					{/* 话题详情内容 开始 */}
+					<TopicDetailContent
+						className="markdown-content"
+						dangerouslySetInnerHTML={{ __html: marked(content) }}
+					/>
+					{/* 话题详情内容 结束 */}
 
-				{/* 话题详情内容 开始 */}
-				<TopicDetailContent
-					className="markdown-content"
-					dangerouslySetInnerHTML={{ __html: marked(content) }}
-				/>
-				{/* 话题详情内容 结束 */}
+					{/* 话题详情回复 开始 */}
+					<ReplyArea
+						author={ author }
+						topicId={ id }
+					/>
+					{/* 话题详情回复 结束 */}
 
-				{/* 话题详情回复 开始 */}
-				<ReplyArea
-					replies={ replies }
-					author={ author }
-					topicId={ id }
-					ref={ replyarea => this.replyarea = replyarea }
-				/>
-				{/* 话题详情回复 结束 */}
-
-				<div className="publish-comment-area">
-					<div className="publish-header">
-						<span>发表评论</span>
-						<div className="submit-btn"title="发表评论" onClick={ this.handleSubmitComment} >
-							发表
+					<div className="publish-comment-area">
+						<div className="publish-header">
+							<span>发表评论</span>
 						</div>
+						<CustomEditor
+							isAuth={this.props.user.isAuth}
+							isReply={false}
+							topicId={id}
+						/>
 					</div>
-					<div className="editor-wrapper">
-						<BraftEditor { ...editorProps } ref={ editor => this.editor = editor} />
-					</div>
-				</div>
 
-			</TopicDetailSection>
-		);
+				</TopicDetailSection>
+			);
+		}
+		return <div />;
 	}
 }
 
