@@ -592,8 +592,9 @@ class TopicDetail extends Component {
 		let res = null;
 		try {
 			res = axios.post('/api/topic_collect/collect?needAccessToken=true', { topic_id: id });
-			if ( res.status === 200 && res.data.success ) {
+			if ( res.status === 200 && res.data['success'] ) {
 				// TODO: 收藏成功
+				this.setState({ topicContent: { ...this.state.topicContent, is_collect: true } });
 				message.success('已收藏');
 				this.setState({ isCollected: true });
 			} else {
@@ -611,8 +612,9 @@ class TopicDetail extends Component {
 		let res = null;
 		try {
 			res = axios.post('/api/topic_collect/de_collect?needAccessToken=true', { topic_id: id });
-			if ( res.status === 200 && res.data.success ) {
+			if ( res.status === 200 && res.data['success'] ) {
 				// 取消成功
+				this.setState({ topicContent: { ...this.state.topicContent, is_collect: false } });
 				message.success('取消成功');
 				this.setState({ isCollected: false });
 			} else {

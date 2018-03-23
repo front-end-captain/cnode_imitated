@@ -64,7 +64,7 @@ class TopicListGood extends Component {
 			if ( res.status === 200 && res.data.success ) {
 				this.props.saveTopicListGood( normalizeTopicList(res.data.data) );
 				this.props.changeTopicListGoodPageIndex( current );
-				this.setState({ loading: true });
+				this.setState({ loading: false });
 			} else {
 				this.setState({ loadFail: true });
 			}

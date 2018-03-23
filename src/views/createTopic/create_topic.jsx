@@ -33,6 +33,7 @@ const CreateTopicSection = styled.div`
 				width: 500px;
 				border-bottom: 1px solid #666;
 				outline: none;
+				background-color: #fff;
 			}
 		}
 	}
@@ -48,7 +49,6 @@ const CreateTopicSection = styled.div`
 				width: 100px;
 				text-align: center;
 				margin-left: 20px;
-				text-indent: 1rem;
 				height: 30px;
 				border-bottom: 1px solid #666;
 				outline: none;
@@ -207,6 +207,7 @@ class CreateTopic extends Component {
 							id="topic_title"
 							placeholder="帖子标题"
 							onChange={ this.handleTitleChange }
+							disabled={!this.props.isAuth}
 							ref={ (input) => { this.titleInput = input; } }
 						/>
 					</label>
