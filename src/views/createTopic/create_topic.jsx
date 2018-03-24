@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import BraftEditor from 'braft-editor';
-import 'braft-editor/dist/braft.css';
+import SimpleEditor from 'react-simplemde-editor';
 import axios from 'axios';
 import { message } from 'antd';
 import { connect } from 'react-redux';
@@ -73,9 +72,9 @@ const CreateTopicSection = styled.div`
 		}
 	}
 
-	.BraftEditor-container {
-		margin-top: 10px;
-		border-top: 1px solid #ccc;
+	.CodeMirror {
+		min-height: 255px;
+		height: 200px;
 	}
 `;
 
@@ -93,11 +92,9 @@ class CreateTopic extends Component {
 
 		this.state = {
 			title: '',
-			htmlContent: '',
 			tab: 'dev',
-			plainText: '',
+			newTopicContent: '',
 		};
-		this.handleHTMLChange = this.handleHTMLChange.bind( this );
 		this.handleSubmit = this.handleSubmit.bind( this );
 		this.createTocpic = this.createTocpic.bind( this );
 		this.handleTitleChange = this.handleTitleChange.bind( this );
@@ -106,17 +103,8 @@ class CreateTopic extends Component {
 		this.handleSubmitWrapper = this.handleSubmitWrapper.bind( this );
 	}
 
-  handleHTMLChange(html) {
-		this.setState({ htmlContent: html });
-	}
-
 	handleChange( content ) {
-		console.log( content );
-		const topicArr = content.blocks.map((block) => {
-			return block.text;
-		});
-		const topicStr = topicArr.join('');
-		this.setState({ plainText: topicStr });
+		this.setState({ newTopicContent: content });
 	}
 
 	handleSubmitWrapper() {
@@ -132,8 +120,7 @@ class CreateTopic extends Component {
 		const {
 			title,
 			tab,
-			htmlContent,
-			plainText,
+			newTopicContent,
 		} = this.state;
 
 		if ( !this.props.isAuth ) {
@@ -153,20 +140,19 @@ class CreateTopic extends Component {
 			return;
 		}
 
-		if ( !htmlContent || !plainText ) {
+		if ( !newTopicContent.trim() ) {
 			message.warning('话题内容不能为空');
 			this.editor.focus();
 			return;
 		}
 
-		const decodeHtmlContent = decodeURIComponent( htmlContent );
-		this.createTocpic( title, tab, decodeHtmlContent );
+		this.createTocpic( title, tab, newTopicContent );
 	}
 
-	async createTocpic( title, tab, html ) {
+	async createTocpic( title, tab, content ) {
 		let res = null;
 		try {
-			res = await axios.post('/api/topics?needAccessToken=true', { title, tab, content: html });
+			res = await axios.post('/api/topics?needAccessToken=true', { title, tab, content });
 			if ( res.status === 200 && res.data.success ) {
 				message.success('话题创建成功');
 			} else {
@@ -188,12 +174,14 @@ class CreateTopic extends Component {
 
 	render() {
 		const editorProps = {
-      height: 300,
-      initialContent: null,
-      onChange: this.handleChange,
-			onHTMLChange: this.handleHTMLChange,
-			placeholder: this.props.isAuth ? '输入话题内容...' : '登录后才可以创建话题~',
-			disabled: !this.props.isAuth,
+			id: 'create-topic-editor',
+			onChange: this.handleChange,
+			value: this.state.newTopicContent,
+			options: {
+				spellcheck: false,
+				autosave: true,
+				placeholder: this.props.isAuth ? '输入话题内容...' : '登录后才可以创建话题~',
+			},
 		};
 
 		return (
@@ -223,7 +211,7 @@ class CreateTopic extends Component {
 						</select>
 					</label>
 				</div>
-				<BraftEditor {...editorProps} ref={ (editor) => { this.editor = editor; } } />
+				<SimpleEditor {...editorProps} />
 				<div className="submit-btn" onClick={ this.handleSubmitWrapper } >提交</div>
 			</CreateTopicSection>
 		);

@@ -9,6 +9,7 @@ import { message } from 'antd';
 import { throttle } from './../../common/js/topicList.js';
 import CustomEditor from './../../components/Editor/editor.jsx';
 import { updateCommentsOfTopic } from './../../store/topicDetail.store.js';
+import MarkdownContent from './../../components/MarkdownContent/markdownContent.js';
 
 
 const replyBtnIcon = require('./reply-btn.png');
@@ -79,8 +80,11 @@ const ReplyItem = styled.div`
 
 	.editor-area {
 		position: relative;
-		display: none;
+		height: 0;
+		opacity: 0;
+		z-index: -99;
 		box-sizing: border-box;
+		transition: all 0.5s;
 	}
 `;
 const TypeBtn = styled.span`
@@ -205,14 +209,15 @@ class ReplyArea extends Component {
 	toggleEditor(event) {
 		const parent = parents(event.target, '.reply-item');
 		const editorArea = parent.querySelector('.editor-area');
-		// const submitReplyBtn = parent.querySelector('.submit-reply-btn');
 		this.isEditorDisplay = !this.isEditorDisplay;
-		if ( this.isEditorDisplay ) {
-			editorArea.style.display = 'block';
-			// submitReplyBtn.style.visibility = 'visible';
+		if ( !this.isEditorDisplay ) {
+			editorArea.style.height = '0';
+			editorArea.style.opacity = 0;
+			editorArea.style.zIndex = -99;
 		} else {
-			editorArea.style.display = 'none';
-			// submitReplyBtn.style.visibility = 'hidden';
+			editorArea.style.height = '250px';
+			editorArea.style.opacity = 1;
+			editorArea.style.zIndex = 1;
 		}
 	}
 
@@ -252,10 +257,12 @@ class ReplyArea extends Component {
 									{item.ups.length > 0 && item.ups.length}
 								</span>
 							</div>
-							<div
-								className="content"
-								dangerouslySetInnerHTML={{ __html: marked(item.content) }}
-							/>
+							<MarkdownContent>
+								<div
+									className="markdown-body"
+									dangerouslySetInnerHTML={{ __html: marked(item.content) }}
+								/>
+							</MarkdownContent>
 							<div className="editor-area">
 								<CustomEditor
 									isAuth={this.props.user.isAuth}
