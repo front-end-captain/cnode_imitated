@@ -5,8 +5,8 @@ const favicon = require('serve-favicon');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const serverRender = require('./utils/serverRender.js');
-const PORT = 3000;
-const HOST = '0.0.0.0';
+const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || '0.0.0.0';
 const env = process.env.NODE_ENV;
 
 
