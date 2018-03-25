@@ -6,6 +6,7 @@ const autoprefixer = require('autoprefixer');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const NameAllModulesPlugin = require('name-all-modules-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const cdnConfig = require('./../config').cdn;
 
 // 源代码根目录
 const SRC_PATH = path.resolve( 'src' );
@@ -14,7 +15,7 @@ const SRC_PATH = path.resolve( 'src' );
 const BUILD_PATH = path.resolve( 'build' );
 
 // 线上资源根目录 命名一般为(public / static / assets)  / 必须存在 否则 hmr 将失效
-const ASSETS_PATH = '/assets/';
+const ASSETS_PATH = cdnConfig.host;
 
 const config = {
   devtool: 'source-map',
