@@ -1,0 +1,7 @@
+apps:
+  - script: ./server/server.js
+    name: cnode
+    env_production:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 3000
