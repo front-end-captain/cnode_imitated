@@ -73,7 +73,7 @@ const LoginPage = styled.div`
 `;
 
 @connect(
-	state => state.user,
+	(state) => { return state.user; },
 	{ saveUserInfo, setAuth },
 )
 class Login extends Component {
@@ -144,7 +144,7 @@ class Login extends Component {
 						type="text"
 						placeholder="请输入 accesstoken"
 						onChange={ this.handleChange }
-						ref={ input => this.input = input }
+						ref={ (input) => { return this.input = input; } }
 					/>
 					<span className="tip">{ this.state.loginFail ? '登录失败' : '' }</span>
 					<button type="button" onClick={ this.handleLogin } >登&nbsp;&nbsp;录</button>

@@ -164,7 +164,7 @@ class ReplyArea extends Component {
 		const replyId = args[0];
 		const userId = this.props.user.userInfo.id;
 		const replies = this.props.comments;
-		const targetReply = replies.find(item => item.id === replyId );
+		const targetReply = replies.find((item) => { return item.id === replyId; } );
 
 		let res = null;
 		try {
@@ -185,7 +185,7 @@ class ReplyArea extends Component {
 				}	else if ( res.data.action === 'down' ) {
 
 					// 取消点赞
-					const newUps = targetReply.ups.filter(item => item !== userId );
+					const newUps = targetReply.ups.filter((item) => { return item !== userId; } );
 					targetReply.ups = newUps;
 					const newReplies = replies.map((item) => {
 						if ( item.id === replyId ) {
@@ -253,7 +253,7 @@ class ReplyArea extends Component {
 									)}
 								</p>
 								<span className="reply-btn" title="回复" onClick={ this.toggleEditor } />
-								<span className="ups" title="赞" onClick={ () => this.handleLikeWrapper(id, loginname) } >
+								<span className="ups" title="赞" onClick={ () => { return this.handleLikeWrapper(id, loginname); } } >
 									{item.ups.length > 0 && item.ups.length}
 								</span>
 							</div>

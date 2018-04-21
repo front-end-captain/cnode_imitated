@@ -58,7 +58,7 @@ const createReply = (id, loginname, avatar_url, content, reply_id = '') => {
 
 
 @connect(
-	state => state.user,
+	(state) => { return state.user; },
 	{ updateCommentsOfTopic },
 )
 class CustomEditor extends Component {
@@ -237,7 +237,7 @@ class CustomEditor extends Component {
 
 		return (
 			<EditorWrapper className="editor-wrapper" reply={this.props.isReply} >
-				<ReactSimpleMde {...editorOptions} ref={ editor => this.editor = editor } />
+				<ReactSimpleMde {...editorOptions} ref={ (editor) => { return this.editor = editor; } } />
 				<div className="submit-btn" onClick={ this.handleSubmitWrapper } >
 					{ this.props.isReply ? '回复' : '评论' }
 				</div>

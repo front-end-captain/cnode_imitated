@@ -81,7 +81,7 @@ const LogoutPage = styled.div`
 `;
 
 @connect(
-	state => state.user,
+	(state) => { return state.user; },
 	{ clearUserInfo, setAuth },
 )
 class Logout extends Component {

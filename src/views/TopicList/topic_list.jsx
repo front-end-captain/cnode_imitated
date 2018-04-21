@@ -25,7 +25,7 @@ function TopicList() {
 		<TopicListSection>
 			<Tab />
 			<Switch>
-				<Route path="/list" exact render={ () => <Redirect to="/list/all" /> } />
+				<Route path="/list" exact render={ () => { return <Redirect to="/list/all" />; } } />
 				<Route path="/list/all" component={ TopicListAll } />
 				<Route path="/list/good" component={ TopicListGood } />
 				<Route path="/list/share" component={ TopicListShare } />
@@ -33,7 +33,7 @@ function TopicList() {
 				<Route path="/list/job" component={ TopicListJob } />
 				<Route path="/list/dev" component={ TopicListTest } />
 				<Route path="/list/create" component={ CreateTopic } />
-				<Route render={ () => <Redirect to="/list/all" /> } />
+				<Route render={ () => { return <Redirect to="/list/all" />; } } />
 			</Switch>
 		</TopicListSection>
 	);

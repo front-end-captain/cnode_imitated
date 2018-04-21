@@ -43,7 +43,7 @@ const HeaderSection = styled.div`
 `;
 
 @connect(
-	state => state.user,
+	(state) => { return state.user; },
 	null,
 )
 class Header extends Component {

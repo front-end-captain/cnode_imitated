@@ -8,7 +8,8 @@ import rootReducer from './store/index.js';
 
 const sheet = new ServerStyleSheet();
 
-export default ( store, routerContenxt, url ) => (
+export default ( store, routerContenxt, url ) => {
+return (
 	<Provider store={ store }>
 		<StaticRouter context={routerContenxt} location={url}>
 			<StyleSheetManager sheet={sheet.instance}>
@@ -17,5 +18,6 @@ export default ( store, routerContenxt, url ) => (
 		</StaticRouter>
 	</Provider>
 );
+};
 
 export { rootReducer };

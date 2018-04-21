@@ -29,7 +29,7 @@ class App extends Component {
 				<Header key="header" />,
 				<HelmetSection key="helmetsection" />,
 				<Switch key="switch">
-					<Route path="/" exact render={ () => <Redirect to="/list" /> } />
+					<Route path="/" exact render={ () => { return <Redirect to="/list" />; } } />
 					<Route path="/list" component={ TopicList } />
 					<Route path="/detail/:id" component={ TopicDetail } />
 					<Route path="/login" component={ Login } />

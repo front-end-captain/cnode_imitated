@@ -25,7 +25,7 @@ const PaginationWrapper = styled.div`
 
 
 @connect(
-	state => state.topicList,
+	(state) => { return state.topicList; },
 	{ saveTopicListAll, changeTopicListAllPageIndex },
 )
 class TopicListAll extends Component {

@@ -79,7 +79,7 @@ const CreateTopicSection = styled.div`
 `;
 
 @connect(
-	state => state.user,
+	(state) => { return state.user; },
 	null,
 )
 class CreateTopic extends Component {
