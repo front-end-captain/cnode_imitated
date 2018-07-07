@@ -1,69 +1,62 @@
 const path = require("path");
 
-// 源代码根目录
-const SRC_PATH = path.resolve( 'src' );
-
-// 打包后的输出文件存放目录
-const BUILD_PATH = path.resolve( 'build' );
-
-// 线上资源根目录
-const ASSETS_PATH = '/assets/';
-
+const { SRC_PATH, BUILD_PATH, ASSETS_PATH } = require("./constant.js");
 
 module.exports = {
-	target: 'node',
-	// 依赖入口文件
+	target: "node",
+
 	entry: {
-		app: SRC_PATH + '/server-entry.js'
+		app: SRC_PATH + "/server-entry.js",
 	},
 
-	// 打包输出文件
 	output: {
-
-		// 输出文件存放目录 绝对路径
 		path: BUILD_PATH,
 
-		// 输出文件名称
-		filename: 'server-entry.js',
+		filename: "server-entry.js",
 
 		// publicPath 为项目发布到线上所有资源的 URL 前缀， 为 String 类型
 		// publicPath: '/assets/'     // 放到制定目录下
 		// publicPath: ''             // 放到根目录下
 		// publicPath: 'https://cdn.example.com'  // 放到 cdn 上
 		publicPath: ASSETS_PATH,
-		libraryTarget: "commonjs2"
+
+		// 输出的代码将以 module.exports = lib_code 的方式导出
+		libraryTarget: "commonjs2",
+
+		library: "server-output",
 	},
 
-	externals: Object.keys( require('./../package.json').dependencies ),
+	// 构建过程中不用被打包的模块
+	externals: Object.keys(require("./../package.json").dependencies),
 
 	module: {
 		rules: [
 			{
-        test: /\.(js|jsx)$/,
-        enforce: 'pre',
-				loader: require.resolve('eslint-loader'),
-        include: SRC_PATH,
-      },
+				test: /\.(js|jsx)$/,
+				enforce: "pre",
+				loader: require.resolve("eslint-loader"),
+				include: SRC_PATH,
+			},
 			{
 				test: /\.jsx?$/,
 				exclude: /node_modules/,
-				loader: require.resolve( 'babel-loader' ),
+				loader: require.resolve("babel-loader"),
 				options: {
 					cacheDirectory: true,
-				}
+				},
 			},
 			{
 				test: /\.css$/,
-				loader: 'css-loader'
+				loader: "css-loader",
 			},
 			{
 				test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
-        loader: 'url-loader',
-        options: {
-          limit: 10000,
-          name: '[name].[hash:7].[ext]'
-        }
-			}
-		]
-	}
+				loader: "url-loader",
+				options: {
+					limit: 10000,
+					name: "[name].[hash:7].[ext]",
+				},
+			},
+		],
+	},
 };

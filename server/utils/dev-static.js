@@ -10,7 +10,7 @@ const MemoryFS = require("memory-fs");
 const Proxy = require("http-proxy-middleware");
 const serverRender = require("./serverRender.js");
 
-process.on("uncaughtException", error => {
+process.on("uncaughtException", (error) => {
 	console.error(error);
 });
 
@@ -20,10 +20,10 @@ const getTemplate = () => {
 	return new Promise((resolve, reject) => {
 		axios
 			.get("http://localhost:8080/assets/server.ejs")
-			.then(res => {
+			.then((res) => {
 				resolve(res.data);
 			})
-			.catch(error => {
+			.catch((error) => {
 				reject(error);
 			});
 	});
@@ -43,7 +43,7 @@ const getModuleFromString = (bundle, filename) => {
 	// 对代码进行编译但是不执行代码
 	const script = new vm.Script(wrapper, {
 		filename: filename,
-		displayErrors: true
+		displayErrors: true,
 	});
 
 	// 在当前 global 对象的上下文中执行编译后的代码 最后返回结果
@@ -71,12 +71,12 @@ serverCompiler.watch({}, (error, stats) => {
 	}
 
 	const info = stats.toJson();
-	info.errors.forEach(error => console.error(error));
-	info.warnings.forEach(warn => console.warn(warn));
+	info.errors.forEach((error) => console.error(error));
+	info.warnings.forEach((warn) => console.warn(warn));
 
 	const bundlePath = path.join(
 		serverConfig.output.path,
-		serverConfig.output.filename
+		serverConfig.output.filename,
 	);
 
 	// 此时输出的 bundle 为字符串 必须转换为模块 才可以使用
@@ -87,13 +87,13 @@ serverCompiler.watch({}, (error, stats) => {
 	serverBundle = m.exports;
 });
 
-const devStatic = app => {
-	// 将静态资源的访问代理到 webpack-dev-server 去访问
+const devStatic = (app) => {
+	// 将静态资源的访问代理到 webpack-dev-server
 	app.use(
 		"/assets/",
 		Proxy({
-			target: "http://localhost:8080"
-		})
+			target: "http://localhost:8080",
+		}),
 	);
 
 	app.get("*", (request, response, next) => {
@@ -101,7 +101,7 @@ const devStatic = app => {
 			return response.send("waiting for serverbundle...");
 		}
 		getTemplate()
-			.then(template => {
+			.then((template) => {
 				return serverRender(serverBundle, template, request, response);
 			})
 			.catch(next);

@@ -1,6 +1,10 @@
 {
 	"extends": "standard",
 	"rules": {
-		"no-tabs": [0]
+		"no-tabs": "off",
+		"indent": "off",
+		"quotes": "off",
+		"semi": "off",
+		"comma-dangle": "off"
 	}
 }

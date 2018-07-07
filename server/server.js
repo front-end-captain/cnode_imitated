@@ -12,12 +12,12 @@ const env = process.env.NODE_ENV;
 const app = express();
 
 // logger
-app.use(function(request, response, next) {
+app.use((request, response, next) => {
 	console.log(
 		"The request type is " +
 			request.method +
 			"; request url is " +
-			request.originalUrl
+			request.originalUrl,
 	);
 	next();
 });
@@ -30,8 +30,8 @@ app.use(
 		name: "tid",
 		resave: false,
 		saveUninitialized: false,
-		secret: "react_cnode"
-	})
+		secret: "react_cnode",
+	}),
 );
 
 // serve-favico 可能会失效 在 html-webpack-plugin 中配置
@@ -47,13 +47,13 @@ if (env === "production") {
 
 	const template = fs.readFileSync(
 		path.resolve(__dirname, "./../build/server.ejs"),
-		"utf8"
+		"utf8",
 	);
 
 	// 生产环境下静态资源目录
 	app.use("/assets", express.static(path.resolve(__dirname, "./../build")));
 
-	app.get("*", function(request, response, next) {
+	app.get("*", (request, response, next) => {
 		serverRender(serverEntry, template, request, response).catch(next);
 	});
 }
@@ -66,11 +66,11 @@ if (env === "development") {
 
 // 错误处理（所有中间件、路由抛出的异常都将在这里处理）
 app.use((error, request, response, next) => {
-	console.log(error);
+	// console.log(error);
 	response.status(500).send(error);
 });
 
-const server = app.listen(PORT, HOST, function() {
+const server = app.listen(PORT, HOST, () => {
 	let host = server.address().address;
 	let port = server.address().port;
 	console.log("The server is listening at http://%s:%s", host, port);

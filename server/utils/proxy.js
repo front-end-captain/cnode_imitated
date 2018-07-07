@@ -17,13 +17,13 @@ const proxyHandle = (request, response, next) => {
 	if (needAccessToken && !user.accessToken) {
 		response.status(401).send({
 			success: false,
-			msg: "need login"
+			msg: "need login",
 		});
 	}
 
 	const query = Object.assign({}, request.query, {
 		accessToken:
-			needAccessToken && request.method === "GET" ? user.accessToken : ""
+			needAccessToken && request.method === "GET" ? user.accessToken : "",
 	});
 
 	if (query.needAccessToken) delete query.needAccessToken;
@@ -34,27 +34,27 @@ const proxyHandle = (request, response, next) => {
 		data: queryString.stringify(
 			Object.assign({}, request.body, {
 				accesstoken:
-					needAccessToken && request.method === "POST" ? user.accessToken : ""
-			})
+					needAccessToken && request.method === "POST" ? user.accessToken : "",
+			}),
 		),
 		headers: {
-			"Content-Type": "application/x-www-form-urlencoded"
-		}
+			"Content-Type": "application/x-www-form-urlencoded",
+		},
 	})
-		.then(res => {
+		.then((res) => {
 			if (res.status === 200) {
 				response.send(res.data);
 			} else {
 				response.status(res.status).send(res.data);
 			}
 		})
-		.catch(error => {
+		.catch((error) => {
 			if (error.response) {
 				response.status(500).send(error.response.data);
 			} else {
 				response.status(500).send({
 					success: false,
-					msg: "unknown error"
+					msg: "unknown error",
 				});
 			}
 		});
