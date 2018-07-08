@@ -5,6 +5,7 @@
 		"indent": "off",
 		"quotes": "off",
 		"semi": "off",
-		"comma-dangle": "off"
+		"comma-dangle": "off",
+		"linebreak-style": "off"
 	}
 }

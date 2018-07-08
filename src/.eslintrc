@@ -36,6 +36,7 @@
 		"jsx-a11y/click-events-have-key-events": [0],
 		"no-return-assign": ["off"],
 		"consistent-return": ["error", { "treatUndefinedAsUnspecified": true }],
-		"dot-notation": ["warn"]
+		"dot-notation": ["warn"],
+		"linebreak-style": "off"
 	}
 }
