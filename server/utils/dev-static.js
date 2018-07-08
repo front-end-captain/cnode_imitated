@@ -1,9 +1,9 @@
 /**
  * 开发环境下的服务端渲染
  */
-
+require("es6-promise").polyfill();
 const path = require("path");
-const axios = require("axios");
+const fetch = require("isomorphic-fetch");
 const webpack = require("webpack");
 const serverConfig = require("./../../config/webpack.config.server.js");
 const MemoryFS = require("memory-fs");
@@ -18,14 +18,16 @@ process.on("uncaughtException", (error) => {
 // 通过 http 请求的方式请求 webpack-dev-server 拿到 server.ejs
 const getTemplate = () => {
 	return new Promise((resolve, reject) => {
-		axios
-			.get("http://localhost:8080/assets/server.ejs")
-			.then((res) => {
-				resolve(res.data);
-			})
-			.catch((error) => {
-				reject(error);
-			});
+		fetch("http://localhost:8080/assets/server.ejs")
+		.then((response) => {
+			if (response.status >= 400) {
+				reject(new Error("Bad response from server"));
+			}
+			resolve(response.text());
+		})
+		.catch((error) => {
+			reject(error);
+		});
 	});
 };
 
@@ -98,7 +100,7 @@ const devStatic = (app) => {
 
 	app.get("*", (request, response, next) => {
 		if (!serverBundle) {
-			return response.send("waiting for serverbundle...");
+			return response.send("waiting for serverBundle...");
 		}
 		getTemplate()
 			.then((template) => {

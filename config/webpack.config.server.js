@@ -1,5 +1,3 @@
-const path = require("path");
-
 const { SRC_PATH, BUILD_PATH, ASSETS_PATH } = require("./constant.js");
 
 module.exports = {

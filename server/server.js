@@ -66,7 +66,7 @@ if (env === "development") {
 
 // 错误处理（所有中间件、路由抛出的异常都将在这里处理）
 app.use((error, request, response, next) => {
-	// console.log(error);
+	console.log(error);
 	response.status(500).send(error);
 });
 

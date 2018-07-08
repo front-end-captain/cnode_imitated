@@ -7,11 +7,11 @@ const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const NameAllModulesPlugin = require("name-all-modules-plugin");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
 	.BundleAnalyzerPlugin;
-const cdnConfig = require("./../config").cdn;
-const { ROOT_PATH, SRC_PATH, BUILD_PATH } = require("./../config/constant.js");
+// const cdnConfig = require("./../config").cdn;
+const { ROOT_PATH, SRC_PATH, BUILD_PATH, ASSETS_PATH } = require("./../config/constant.js");
 
 // 线上资源根目录 命名一般为(public / static / assets)  / 必须存在 否则 hmr 将失效
-const ASSETS_PATH = cdnConfig.host;
+// const ASSETS_PATH = cdnConfig.host;
 
 const config = {
 	entry: {
