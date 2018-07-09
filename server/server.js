@@ -4,6 +4,7 @@ const path = require("path");
 const favicon = require("serve-favicon");
 const bodyParser = require("body-parser");
 const session = require("express-session");
+const chalk = require("chalk");
 const serverRender = require("./utils/serverRender.js");
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || "0.0.0.0";
@@ -15,9 +16,11 @@ const app = express();
 app.use((request, response, next) => {
 	console.log(
 		"The request type is " +
-			request.method +
+			chalk.green(request.method) +
 			"; request url is " +
-			request.originalUrl,
+			chalk.green(request.originalUrl) +
+			"; " +
+			chalk.yellow(new Date().toUTCString())
 	);
 	next();
 });
@@ -34,7 +37,7 @@ app.use(
 	}),
 );
 
-// serve-favico 可能会失效 在 html-webpack-plugin 中配置
+// server-favicon 可能会失效 在 html-webpack-plugin 中配置
 app.use(favicon(path.resolve(__dirname, "./../cnode.ico")));
 
 app.use("/api/user", require("./utils/handle-login"));
@@ -65,13 +68,16 @@ if (env === "development") {
 }
 
 // 错误处理（所有中间件、路由抛出的异常都将在这里处理）
-app.use((error, request, response, next) => {
-	console.log(error);
+app.use((error, request, response) => {
+	console.log(chalk.red(error));
 	response.status(500).send(error);
 });
 
 const server = app.listen(PORT, HOST, () => {
 	let host = server.address().address;
 	let port = server.address().port;
-	console.log("The server is listening at http://%s:%s", host, port);
+	console.log(
+		chalk.blue("The server is listening at http://%s:"),
+		chalk.red(host, port),
+	);
 });

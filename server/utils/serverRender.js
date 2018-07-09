@@ -20,7 +20,7 @@ const serverRenderHandle = (bundle, template, request, response) => {
 					response.end();
 					return;
 				}
-				const helmet = Helmet.rewind();
+				const helmet = Helmet.renderStatic();
 				const state = store.getState();
 				const content = ReactDOMServer.renderToString(app);
 
