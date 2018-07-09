@@ -1,18 +1,18 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import axios from 'axios';
-import styled from 'styled-components';
-import marked from 'marked';
-import moment from 'moment';
-import { connect } from 'react-redux';
-import { message } from 'antd';
-import ReplyArea from './../ReplyArea/reply_area.jsx';
-import NoResult from './../../components/NoResult/no_result.jsx';
-import Loading from './../../components/Loading/loading.jsx';
-import { saveCommentsOfTopic } from './../../store/topicDetail.store.js';
-import CustomEditor from './../../components/Editor/editor.jsx';
-import { throttle } from './../../common/js/topicList.js';
-import MarkdownContent from './../../components/MarkdownContent/markdownContent.js';
+import React, { Component } from "react";
+import PropTypes from "prop-types";
+import axios from "axios";
+import styled from "styled-components";
+import marked from "marked";
+import moment from "moment";
+import { connect } from "react-redux";
+import { message } from "antd";
+import ReplyArea from "./../ReplyArea/reply_area.jsx";
+import NoResult from "./../../components/NoResult/no_result.jsx";
+import Loading from "./../../components/Loading/loading.jsx";
+import { saveCommentsOfTopic } from "./../../store/topicDetail.store.js";
+import CustomEditor from "./../../components/Editor/editor.jsx";
+import { throttle } from "./../../common/js/topicList.js";
+import MarkdownContent from "./../../components/MarkdownContent/markdownContent.js";
 
 const LoadingContainer = styled.div`
 	width: 100%;
@@ -117,21 +117,22 @@ const TypeBtn = styled.span`
 	font-size: 12px;
 	padding: 1px 4px;
 	border-radius: 3px;
-	color: ${( props ) => { return props.primary ? '#fff' : '#999'; }};
-	background-color: ${( props ) => { return props.primary ? '#80bd01' : '#e5e5e5'; }};
+	color: ${(props) => { return props.primary ? "#fff" : "#999"; }};
+	background-color: ${(props) => { return props.primary ? "#80bd01" : "#e5e5e5"; }};
 `;
 
-
 @connect(
-	(state) => { return { user: state.user }; },
+	(state) => {
+		return { user: state.user };
+	},
 	{ saveCommentsOfTopic },
 )
 class TopicDetail extends Component {
 	static propTypes = {
-		match: PropTypes.instanceOf( Object ),
+		match: PropTypes.instanceOf(Object),
 		user: PropTypes.instanceOf(Object).isRequired,
 		saveCommentsOfTopic: PropTypes.func.isRequired,
-	}
+	};
 
 	constructor() {
 		super();
@@ -142,7 +143,7 @@ class TopicDetail extends Component {
 			isCollected: false,
 		};
 
-		this.getArticleDetail = this.getArticleDetail.bind( this );
+		this.getArticleDetail = this.getArticleDetail.bind(this);
 		this.handleCollectWrapper = this.handleCollectWrapper.bind(this);
 		this.handleCollect = this.handleCollect.bind(this);
 		this.collectTopic = this.collectTopic.bind(this);
@@ -151,24 +152,27 @@ class TopicDetail extends Component {
 
 	componentDidMount() {
 		const { id } = this.props.match.params;
-		this.getArticleDetail( id );
+		this.getArticleDetail(id);
 	}
 
 	// 获取话题详情内容
-	async getArticleDetail( id ) {
+	async getArticleDetail(id) {
 		this.setState({ loading: true });
 		let res = null;
 		try {
 			res = await axios.get(`/api/topic/${id}`);
-			if ( res.status === 200 && res.data.success ) {
+			if (res.status === 200 && res.data.success) {
 				this.setState({ topicContent: res.data.data });
-				this.setState({ loading: false, isCollected: res.data.data.is_collect });
+				this.setState({
+					loading: false,
+					isCollected: res.data.data.is_collect,
+				});
 				this.props.saveCommentsOfTopic(res.data.data.replies);
 			} else {
 				this.setState({ loadFail: true });
 			}
-		} catch ( error ) {
-			console.error( error );
+		} catch (error) {
+			console.error(error);
 			this.setState({ loadFail: true });
 		}
 	}
@@ -180,8 +184,8 @@ class TopicDetail extends Component {
 	// 收藏 / 取消收藏
 	handleCollect() {
 		// post /api/topic_collect/collect params: { accesstoken, topic_id }
-		if ( !this.props.user.isAuth ) {
-			message.warning('您还没有登录~');
+		if (!this.props.user.isAuth) {
+			message.warning("您还没有登录~");
 			return;
 		}
 
@@ -196,18 +200,22 @@ class TopicDetail extends Component {
 	async collectTopic(id) {
 		let res = null;
 		try {
-			res = axios.post('/api/topic_collect/collect?needAccessToken=true', { topic_id: id });
-			if ( res.status === 200 && res.data.success ) {
+			res = axios.post("/api/topic_collect/collect?needAccessToken=true", {
+				topic_id: id,
+			});
+			if (res.status === 200 && res.data.success) {
 				// TODO: 收藏成功
-				this.setState({ topicContent: { ...this.state.topicContent, is_collect: true } });
-				message.success('已收藏');
+				this.setState({
+					topicContent: { ...this.state.topicContent, is_collect: true },
+				});
+				message.success("已收藏");
 				this.setState({ isCollected: true });
 			} else {
 				// TODO: 收藏失败
-				message.warning('收藏失败');
+				message.warning("收藏失败");
 			}
 		} catch (error) {
-			if ( error.response ) {
+			if (error.response) {
 				message.error(`收藏失败${error.response.data.error_mag}`);
 			}
 		}
@@ -216,15 +224,19 @@ class TopicDetail extends Component {
 	async deCollectTopic(id) {
 		let res = null;
 		try {
-			res = axios.post('/api/topic_collect/de_collect?needAccessToken=true', { topic_id: id });
-			if ( res.status === 200 && res.data.success ) {
+			res = axios.post("/api/topic_collect/de_collect?needAccessToken=true", {
+				topic_id: id,
+			});
+			if (res.status === 200 && res.data.success) {
 				// 取消成功
-				this.setState({ topicContent: { ...this.state.topicContent, is_collect: false } });
-				message.success('取消成功');
+				this.setState({
+					topicContent: { ...this.state.topicContent, is_collect: false },
+				});
+				message.success("取消成功");
 				this.setState({ isCollected: false });
 			} else {
 				// 取消失败
-				message.warning('取消失败');
+				message.warning("取消失败");
 			}
 		} catch (error) {
 			if (error.response) {
@@ -234,24 +246,40 @@ class TopicDetail extends Component {
 	}
 
 	render() {
-		if ( this.state.loadFail ) {
-			return <LoadingContainer><NoResult text="数据加载失败了" /></LoadingContainer>;
+		if (this.state.loadFail) {
+			return (
+				<LoadingContainer>
+					<NoResult text="数据加载失败了" />
+				</LoadingContainer>
+			);
 		}
-		if ( this.state.loading ) {
-			return <LoadingContainer><Loading /></LoadingContainer>;
+		if (this.state.loading) {
+			return (
+				<LoadingContainer>
+					<Loading />
+				</LoadingContainer>
+			);
 		}
 
-		if ( this.state.topicContent ) {
+		if (this.state.topicContent) {
 			const {
-				top, good, title, create_at, author, visit_count, last_reply_at, content, tab,
+				top,
+				good,
+				title,
+				create_at,
+				author,
+				visit_count,
+				last_reply_at,
+				content,
+				tab,
 				id,
 			} = this.state.topicContent;
 
 			const renderTypeBtn = () => {
-				if ( top ) {
+				if (top) {
 					return <TypeBtn primary>置顶</TypeBtn>;
 				}
-				if ( good ) {
+				if (good) {
 					return <TypeBtn primary>精华</TypeBtn>;
 				}
 				return null;
@@ -259,22 +287,19 @@ class TopicDetail extends Component {
 
 			return (
 				<TopicDetailSection>
-
 					{/* 话题详情头部 开始 */}
 					<div className="topic-header">
 						<h2 className="title">
-							{ renderTypeBtn() }&nbsp;
-							{ title }
+							{renderTypeBtn()}&nbsp;
+							{title}
 						</h2>
 						<p className="info">
-							发布于 { moment(create_at).fromNow() } |
-							作者 { author.loginname } |
-							&nbsp;{ visit_count } 浏览 |
-							最后一次回复是 { moment(last_reply_at).fromNow() } |
-							来自于 { tab }
+							发布于 {moment(create_at).fromNow()} | 作者 {author.loginname} |
+							&nbsp;{visit_count} 浏览 | 最后一次回复是{" "}
+							{moment(last_reply_at).fromNow()} | 来自于 {tab}
 						</p>
-						<button className="collect-btn" onClick={this.handleCollectWrapper} >
-							{ this.state.isCollected ? '已收藏' : '收藏' }
+						<button className="collect-btn" onClick={this.handleCollectWrapper}>
+							{this.state.isCollected ? "已收藏" : "收藏"}
 						</button>
 					</div>
 					{/* 话题详情头部 结束 */}
@@ -289,10 +314,7 @@ class TopicDetail extends Component {
 					{/* 话题详情内容 结束 */}
 
 					{/* 话题详情回复 开始 */}
-					<ReplyArea
-						author={ author }
-						topicId={ id }
-					/>
+					<ReplyArea author={author} topicId={id} />
 					{/* 话题详情回复 结束 */}
 
 					<div className="publish-comment-area">
@@ -305,7 +327,6 @@ class TopicDetail extends Component {
 							topicId={id}
 						/>
 					</div>
-
 				</TopicDetailSection>
 			);
 		}

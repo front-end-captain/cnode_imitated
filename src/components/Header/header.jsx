@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
-import { NavLink } from 'react-router-dom';
-import styled from 'styled-components';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
+import React, { Component } from "react";
+import { NavLink } from "react-router-dom";
+import styled from "styled-components";
+import { connect } from "react-redux";
+import PropTypes from "prop-types";
 
 const HeaderSection = styled.div`
 	width: 100%;
@@ -43,21 +43,26 @@ const HeaderSection = styled.div`
 `;
 
 @connect(
-	(state) => { return state.user; },
+	(state) => {
+		return state.user;
+	},
 	null,
 )
 class Header extends Component {
-
 	static propTypes = {
 		isAuth: PropTypes.bool.isRequired,
-	}
+	};
 
 	render() {
 		return (
 			<HeaderSection>
 				<div className="header-wrapper">
 					<div className="logo-area">
-						<img src={ require('./cnodejs_light.svg') } alt="logo" title="cnode" />
+						<img
+							src={require("./cnodejs_light.svg")}
+							alt="logo"
+							title="cnode"
+						/>
 					</div>
 					<nav>
 						<NavLink to="/list">
@@ -72,12 +77,8 @@ class Header extends Component {
 						<NavLink to="/api">
 							<span>API</span>
 						</NavLink>
-						<NavLink to={ this.props.isAuth ? '/logout' : '/login' }>
-							{
-								this.props.isAuth
-								? <span>退出</span>
-								: <span>登录</span>
-							}
+						<NavLink to={this.props.isAuth ? "/logout" : "/login"}>
+							{this.props.isAuth ? <span>退出</span> : <span>登录</span>}
 						</NavLink>
 					</nav>
 				</div>

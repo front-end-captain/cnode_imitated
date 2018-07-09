@@ -1,15 +1,14 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import { message } from 'antd';
-import axios from 'axios';
-import { connect } from 'react-redux';
-import moment from 'moment';
-import ReactSimpleMde from 'react-simplemde-editor';
+import React, { Component } from "react";
+import PropTypes from "prop-types";
+import styled from "styled-components";
+import { message } from "antd";
+import axios from "axios";
+import { connect } from "react-redux";
+import moment from "moment";
+import ReactSimpleMde from "react-simplemde-editor";
 
-import { updateCommentsOfTopic } from './../../store/topicDetail.store.js';
-import { throttle } from './../../common/js/topicList.js';
-
+import { updateCommentsOfTopic } from "./../../store/topicDetail.store.js";
+import { throttle } from "./../../common/js/topicList.js";
 
 const EditorWrapper = styled.div`
 	position: relative;
@@ -35,13 +34,12 @@ const EditorWrapper = styled.div`
 	}
 
 	.CodeMirror {
-		min-height: ${(props) => { return props.reply ? '140px' : '200px'; }};
-		height: ${(props) => { return props.reply ? '140px' : '200px'; }};
+		min-height: ${(props) => { return props.reply ? "140px" : "200px"; }};
+		height: ${(props) => { return props.reply ? "140px" : "200px"; }};
 	}
 `;
 
-
-const createReply = (id, loginname, avatar_url, content, reply_id = '') => {
+const createReply = (id, loginname, avatar_url, content, reply_id = "") => {
 	return {
 		id,
 		author: {
@@ -56,9 +54,10 @@ const createReply = (id, loginname, avatar_url, content, reply_id = '') => {
 	};
 };
 
-
 @connect(
-	(state) => { return state.user; },
+	(state) => {
+		return state.user;
+	},
 	{ updateCommentsOfTopic },
 )
 class CustomEditor extends Component {
@@ -81,20 +80,19 @@ class CustomEditor extends Component {
 		updateCommentsOfTopic: PropTypes.func.isRequired,
 
 		userInfo: PropTypes.instanceOf(Object).isRequired,
-	}
+	};
 
 	static defaultProps = {
 		isReply: true,
-		toReplyUsername: '',
-	}
+		toReplyUsername: "",
+	};
 
 	constructor() {
 		super();
 
 		this.state = {
-
 			// 评论内容破
-			commentContent: '',
+			commentContent: "",
 		};
 
 		this.createEditorPlaceholder = this.createEditorPlaceholder.bind(this);
@@ -110,16 +108,16 @@ class CustomEditor extends Component {
 	// 提交评论或者回复的处理程序
 	handleSubmit() {
 		// 登录状态判断
-		if ( !this.props.isAuth ) {
-			message.warning('请登录后再进行操作');
+		if (!this.props.isAuth) {
+			message.warning("请登录后再进行操作");
 			return;
 		}
 
 		const { commentContent } = this.state;
 
 		// 非空判断
-		if ( commentContent.trim().length === 0 ) {
-			message.warning('内容不能为空');
+		if (commentContent.trim().length === 0) {
+			message.warning("内容不能为空");
 			return;
 		}
 
@@ -128,8 +126,8 @@ class CustomEditor extends Component {
 
 		const { topicId, replyId } = this.props;
 
-		if ( this.props.isReply ) {
-			this.postReply(topicId, replyId, commentContent );
+		if (this.props.isReply) {
+			this.postReply(topicId, replyId, commentContent);
 		} else {
 			this.postComment(topicId, commentContent);
 		}
@@ -143,18 +141,25 @@ class CustomEditor extends Component {
 		let res = null;
 		const { loginname, avatar_url } = this.props.userInfo;
 		try {
-			res = await axios.post(`/api/topic/${topicId}/replies?needAccessToken=true`, { content });
-			if ( res.status === 200 && res.data.success ) {
-				const newReply =
-					createReply(res.data.reply_id, loginname, avatar_url, content);
+			res = await axios.post(
+				`/api/topic/${topicId}/replies?needAccessToken=true`,
+				{ content },
+			);
+			if (res.status === 200 && res.data.success) {
+				const newReply = createReply(
+					res.data.reply_id,
+					loginname,
+					avatar_url,
+					content,
+				);
 				this.props.updateCommentsOfTopic(newReply);
-				message.success('评论成功');
+				message.success("评论成功");
 			} else {
-				message.warning('评论失败');
+				message.warning("评论失败");
 				this.editor.focus();
 			}
 		} catch (error) {
-			if ( error.response ) {
+			if (error.response) {
 				message.error(`评论失败${error.response.data.error_msg}`);
 				this.editor.focus();
 			}
@@ -173,7 +178,7 @@ class CustomEditor extends Component {
 				`/api/topic/${topicId}/replies?needAccessToken=true`,
 				{ content: newContent, reply_id },
 			);
-			if ( res.status === 200 && res.data.success ) {
+			if (res.status === 200 && res.data.success) {
 				const newReply = createReply(
 					res.data.reply_id,
 					loginname,
@@ -182,37 +187,36 @@ class CustomEditor extends Component {
 					reply_id,
 				);
 				this.props.updateCommentsOfTopic(newReply);
-				message.success('回复成功');
+				message.success("回复成功");
 			} else {
-				message.warning('回复失败');
+				message.warning("回复失败");
 				this.editor.focus();
 			}
 		} catch (error) {
-			console.dir( error );
-			if ( error.response ) {
+			console.dir(error);
+			if (error.response) {
 				message.error(`回复失败${error.response.data.error_msg}`);
 				this.editor.focus();
 			}
 		}
 	}
 
-
 	// 创建编辑器初始占位内容
 	createEditorPlaceholder() {
-		let placeholderText = '';
+		let placeholderText = "";
 
 		/* eslint-disable no-lonely-if */
-		if ( !this.props.isAuth ) {
-			if ( this.props.isReply ) {
-				placeholderText = '请登录后再来回复~';
+		if (!this.props.isAuth) {
+			if (this.props.isReply) {
+				placeholderText = "请登录后再来回复~";
 			} else {
-				placeholderText = '请登录后再来评论~';
+				placeholderText = "请登录后再来评论~";
 			}
 		} else {
-			if ( this.props.isReply ) {
+			if (this.props.isReply) {
 				placeholderText = `@${this.props.toReplyUsername}`;
 			} else {
-				placeholderText = '请输入您的评论内容~';
+				placeholderText = "请输入您的评论内容~";
 			}
 		}
 
@@ -236,10 +240,15 @@ class CustomEditor extends Component {
 		};
 
 		return (
-			<EditorWrapper className="editor-wrapper" reply={this.props.isReply} >
-				<ReactSimpleMde {...editorOptions} ref={ (editor) => { return this.editor = editor; } } />
-				<div className="submit-btn" onClick={ this.handleSubmitWrapper } >
-					{ this.props.isReply ? '回复' : '评论' }
+			<EditorWrapper className="editor-wrapper" reply={this.props.isReply}>
+				<ReactSimpleMde
+					{...editorOptions}
+					ref={(editor) => {
+						return (this.editor = editor);
+					}}
+				/>
+				<div className="submit-btn" onClick={this.handleSubmitWrapper}>
+					{this.props.isReply ? "回复" : "评论"}
 				</div>
 			</EditorWrapper>
 		);

@@ -1,10 +1,10 @@
-import React from 'react';
-import styled from 'styled-components';
-import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
-import moment from 'moment';
+import React from "react";
+import styled from "styled-components";
+import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
+import moment from "moment";
 
-moment.locale('zh-cn');
+moment.locale("zh-cn");
 
 const ListViewSection = styled.div`
 	width: 100%;
@@ -96,77 +96,73 @@ const TypeBtn = styled.span`
 	font-size: 12px;
 	padding: 1px 4px;
 	border-radius: 3px;
-	color: ${( props ) => { return props.primary ? '#fff' : '#999'; }};
-	background-color: ${( props ) => { return props.primary ? '#80bd01' : '#e5e5e5'; }};
+	color: ${(props) => { return props.primary ? "#fff" : "#999"; }};
+	background-color: ${(props) => { return props.primary ? "#80bd01" : "#e5e5e5"; }};
 `;
 
-
-const renderTypeBtn = ( tab ) => {
-	switch ( tab) {
-		case 'share':
+const renderTypeBtn = (tab) => {
+	switch (tab) {
+		case "share":
 			return <TypeBtn>分享</TypeBtn>;
-		case 'ask':
+		case "ask":
 			return <TypeBtn>问答</TypeBtn>;
-		case 'job':
+		case "job":
 			return <TypeBtn>招聘</TypeBtn>;
 		default:
 			return <TypeBtn>分享</TypeBtn>;
 	}
 };
 
-const renderTypeBtnWrapper = ( item ) => {
-	if ( item.top ) {
+const renderTypeBtnWrapper = (item) => {
+	if (item.top) {
 		return <TypeBtn primary>置顶</TypeBtn>;
 	}
-	if ( item.good ) {
+	if (item.good) {
 		return <TypeBtn primary>精华</TypeBtn>;
 	}
 	return renderTypeBtn(item.tab);
 };
 
-function ListView( { dataList } ) {
+function ListView({ dataList }) {
 	return (
 		<ListViewSection>
 			<ul>
-				{
-					dataList.map( ( item ) => {
-						return (
-							<li key={ item.id }>
-								<div className="avatar">
-									<a href="">
-										<img
-											src={ item.author.avatar_url }
-											alt={ item.author.loginname }
-											title={ item.author.loginname }
-										/>
-									</a>
-								</div>
-								<div className="amount">
-									<span>{ item.reply_count }/</span><span>{ item.visit_count }</span>
-								</div>
-								<div className="topic-type">
-									{ renderTypeBtnWrapper(item)	}
-								</div>
-								<div className="title">
-									<Link to={`/detail/${item.id}`}>{ item.title }</Link>
-								</div>
-								<div className="last-apply">
-									{/* <a href="">
+				{dataList.map((item) => {
+					return (
+						<li key={item.id}>
+							<div className="avatar">
+								<a href="">
+									<img
+										src={item.author.avatar_url}
+										alt={item.author.loginname}
+										title={item.author.loginname}
+									/>
+								</a>
+							</div>
+							<div className="amount">
+								<span>{item.reply_count}/</span>
+								<span>{item.visit_count}</span>
+							</div>
+							<div className="topic-type">{renderTypeBtnWrapper(item)}</div>
+							<div className="title">
+								<Link to={`/detail/${item.id}`}>{item.title}</Link>
+							</div>
+							<div className="last-apply">
+								{/* <a href="">
 										<img src="https://avatars1.githubusercontent.com/u/34757631?v=4&s=120" alt=""/>
 									</a> */}
-									<span>{ moment(item.last_reply_at).fromNow() }</span>
-								</div>
-							</li>
-						);
-					})
-				}
+								<span>{moment(item.last_reply_at).fromNow()}</span>
+							</div>
+						</li>
+					);
+				})}
 			</ul>
 		</ListViewSection>
 	);
 }
 
 ListView.propTypes = {
-	dataList: PropTypes.instanceOf( Array ).isRequired,
+	dataList: PropTypes.instanceOf(Array).isRequired,
 };
 /*
 {

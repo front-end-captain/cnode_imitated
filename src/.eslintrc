@@ -37,6 +37,7 @@
 		"no-return-assign": ["off"],
 		"consistent-return": ["error", { "treatUndefinedAsUnspecified": true }],
 		"dot-notation": ["warn"],
-		"linebreak-style": "off"
+		"linebreak-style": "off",
+		"quotes": ["error", "double"]
 	}
 }

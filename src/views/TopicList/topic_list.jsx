@@ -1,16 +1,15 @@
-import React from 'react';
-import styled from 'styled-components';
-import { Switch, Route, Redirect } from 'react-router-dom';
+import React from "react";
+import styled from "styled-components";
+import { Switch, Route, Redirect } from "react-router-dom";
 
-import Tab from './../../components/Tab/tab.jsx';
-import TopicListAll from './../TopicListAll/topiclist_all.jsx';
-import TopicListGood from './../TopicListGood/topiclist_good.jsx';
-import TopicListShare from './../TopicListShare/topiclist_share.jsx';
-import TopicListAsk from './../TopicListAsk/topiclist_ask.jsx';
-import TopicListJob from './../TopicListJob/topiclist_job.jsx';
-import CreateTopic from './../createTopic/create_topic.jsx';
-import TopicListTest from './../TopicListTest/topiclist_test.jsx';
-
+import Tab from "./../../components/Tab/tab.jsx";
+import TopicListAll from "./../TopicListAll/topiclist_all.jsx";
+import TopicListGood from "./../TopicListGood/topiclist_good.jsx";
+import TopicListShare from "./../TopicListShare/topiclist_share.jsx";
+import TopicListAsk from "./../TopicListAsk/topiclist_ask.jsx";
+import TopicListJob from "./../TopicListJob/topiclist_job.jsx";
+import CreateTopic from "./../createTopic/create_topic.jsx";
+import TopicListTest from "./../TopicListTest/topiclist_test.jsx";
 
 const TopicListSection = styled.div`
 	width: 90%;
@@ -25,15 +24,25 @@ function TopicList() {
 		<TopicListSection>
 			<Tab />
 			<Switch>
-				<Route path="/list" exact render={ () => { return <Redirect to="/list/all" />; } } />
-				<Route path="/list/all" component={ TopicListAll } />
-				<Route path="/list/good" component={ TopicListGood } />
-				<Route path="/list/share" component={ TopicListShare } />
-				<Route path="/list/ask" component={ TopicListAsk } />
-				<Route path="/list/job" component={ TopicListJob } />
-				<Route path="/list/dev" component={ TopicListTest } />
-				<Route path="/list/create" component={ CreateTopic } />
-				<Route render={ () => { return <Redirect to="/list/all" />; } } />
+				<Route
+					path="/list"
+					exact
+					render={() => {
+						return <Redirect to="/list/all" />;
+					}}
+				/>
+				<Route path="/list/all" component={TopicListAll} />
+				<Route path="/list/good" component={TopicListGood} />
+				<Route path="/list/share" component={TopicListShare} />
+				<Route path="/list/ask" component={TopicListAsk} />
+				<Route path="/list/job" component={TopicListJob} />
+				<Route path="/list/dev" component={TopicListTest} />
+				<Route path="/list/create" component={CreateTopic} />
+				<Route
+					render={() => {
+						return <Redirect to="/list/all" />;
+					}}
+				/>
 			</Switch>
 		</TopicListSection>
 	);

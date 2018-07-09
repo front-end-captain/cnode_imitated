@@ -11,6 +11,6 @@
 		}],
 		"no-descending-specificity": null,
 		"comment-empty-line-before": null,
-		"selector-pseudo-element-colon-notation": "single"
+		"selector-pseudo-element-colon-notation": "single",
 	}
 }

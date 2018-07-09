@@ -4,7 +4,7 @@
 /* stylelint-disable selector-pseudo-element-colon-notation */
 /* stylelint-disable value-list-comma-newline-after */
 /* stylelint-disable indentation */
-import styled from 'styled-components';
+import styled from "styled-components";
 
 const MarkdownContent = styled.div`
 	background-color: #fff;
@@ -21,7 +21,8 @@ const MarkdownContent = styled.div`
 		-webkit-text-size-adjust: 100%;
 		line-height: 1.5;
 		color: #24292e;
-		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+			sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 		font-size: 16px;
 		word-wrap: break-word;
 	}

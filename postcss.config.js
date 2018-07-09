@@ -1,13 +1,13 @@
 // https://github.com/michael-ciniawsky/postcss-load-config
 
 module.exports = {
-  "plugins": {
+	plugins: {
 		"postcss-cssnext": {},
-    "postcss-import": {},
-    "postcss-url": {
-			url: "inline"
+		"postcss-import": {},
+		"postcss-url": {
+			url: "inline",
 		},
-    // to edit target browsers: use "browserslist" field in package.json
-    "autoprefixer": {}
-  }
-}
+		// to edit target browsers: use "browserslist" field in package.json
+		autoprefixer: {},
+	},
+};

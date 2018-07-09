@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
-import styled from 'styled-components';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { clearUserInfo, setAuth } from './../../store/user.store.js';
+import React, { Component } from "react";
+import styled from "styled-components";
+import PropTypes from "prop-types";
+import { connect } from "react-redux";
+import { clearUserInfo, setAuth } from "./../../store/user.store.js";
 
 const LogoutPage = styled.div`
 	position: fixed;
@@ -81,30 +81,30 @@ const LogoutPage = styled.div`
 `;
 
 @connect(
-	(state) => { return state.user; },
+	(state) => {
+		return state.user;
+	},
 	{ clearUserInfo, setAuth },
 )
 class Logout extends Component {
 	static propTypes = {
-		history: PropTypes.instanceOf( Object ).isRequired,
-		clearUserInfo: PropTypes.instanceOf( Function ).isRequired,
-		setAuth: PropTypes.instanceOf( Function ).isRequired,
+		history: PropTypes.instanceOf(Object).isRequired,
+		clearUserInfo: PropTypes.instanceOf(Function).isRequired,
+		setAuth: PropTypes.instanceOf(Function).isRequired,
 		isAuth: PropTypes.bool.isRequired,
-	}
+	};
 
 	constructor() {
 		super();
-		this.state = {
+		this.state = {};
 
-		};
-
-		this.handleCancel = this.handleCancel.bind( this );
-		this.handleConfirm = this.handleConfirm.bind( this );
+		this.handleCancel = this.handleCancel.bind(this);
+		this.handleConfirm = this.handleConfirm.bind(this);
 	}
 
 	componentDidMount() {
-		if ( !this.props.isAuth ) {
-			this.props.history.replace('/list');
+		if (!this.props.isAuth) {
+			this.props.history.replace("/list");
 		}
 	}
 
@@ -114,10 +114,9 @@ class Logout extends Component {
 
 	handleConfirm() {
 		this.props.clearUserInfo();
-		this.props.setAuth( false );
+		this.props.setAuth(false);
 		this.handleCancel();
 	}
-
 
 	render() {
 		return (
@@ -128,8 +127,12 @@ class Logout extends Component {
 						<p>确定要退出么？</p>
 					</div>
 					<div className="btn-group">
-						<div className="cancel-btn btn" onClick={ this.handleCancel } >取消</div>
-						<div className="confirm-btn btn" onClick={ this.handleConfirm } >确定</div>
+						<div className="cancel-btn btn" onClick={this.handleCancel}>
+							取消
+						</div>
+						<div className="confirm-btn btn" onClick={this.handleConfirm}>
+							确定
+						</div>
 					</div>
 				</div>
 			</LogoutPage>
