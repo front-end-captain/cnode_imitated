@@ -4,7 +4,12 @@ const CleanWebpackPlugin = require("clean-webpack-plugin");
 const webpack = require("webpack");
 const autoprefixer = require("autoprefixer");
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
-const { SRC_PATH, BUILD_PATH, ASSETS_PATH, ROOT_PATH } = require("./constant.js");
+const {
+	SRC_PATH,
+	BUILD_PATH,
+	ASSETS_PATH,
+	ROOT_PATH,
+} = require("./constant.js");
 
 const config = {
 	devtool: "cheap-module-source-map",
@@ -135,7 +140,11 @@ const config = {
 		// 若是存在打包后的目录文件夹
 		// dev-server 打包后的文件 hash 和 已经存在的打包目录中的文件 hash 将不一致 将会导致 404 错误
 		// 所以在开发环境下应该删除打包目录文件夹
-		new CleanWebpackPlugin(["build"]),
+		new CleanWebpackPlugin([BUILD_PATH], {
+			root: ROOT_PATH,
+			verbose: true,
+			dry: false,
+		}),
 		// 非服务端渲染情况下 生产环境和开发环境的入口文件
 		new HtmlWebpackPlugin({
 			title: "cnode",
@@ -145,8 +154,7 @@ const config = {
 		// 开发环境和生产环境下的服务端渲染模版文件
 		new HtmlWebpackPlugin({
 			template:
-				"!!ejs-compiled-loader!" +
-				path.join(SRC_PATH, "/server.template.ejs"),
+				"!!ejs-compiled-loader!" + path.join(SRC_PATH, "/server.template.ejs"),
 			filename: "server.ejs",
 			favicon: path.join(ROOT_PATH, "/cnode.ico"),
 		}),

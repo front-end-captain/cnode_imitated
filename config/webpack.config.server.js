@@ -1,6 +1,12 @@
-const { SRC_PATH, BUILD_PATH, ASSETS_PATH } = require("./constant.js");
+const {
+	SRC_PATH,
+	BUILD_PATH,
+	ASSETS_PATH,
+	ROOT_PATH,
+} = require("./constant.js");
 
 module.exports = {
+	context: ROOT_PATH,
 	target: "node",
 
 	entry: {

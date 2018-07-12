@@ -5,15 +5,26 @@ const webpack = require("webpack");
 const autoprefixer = require("autoprefixer");
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const NameAllModulesPlugin = require("name-all-modules-plugin");
+const HappyPack = require("happypack");
+const ModuleConcatenationPlugin = require("webpack/lib/optimize/ModuleConcatenationPlugin");
+// const DLLReferencePlugin = require("webpack/lib/DllReferencePlugin");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
 	.BundleAnalyzerPlugin;
+// const AddAssetsPlugin = require("add-asset-html-webpack-plugin");
 // const cdnConfig = require("./../config").cdn;
-const { ROOT_PATH, SRC_PATH, BUILD_PATH, ASSETS_PATH } = require("./../config/constant.js");
+const {
+	ROOT_PATH,
+	SRC_PATH,
+	BUILD_PATH,
+	ASSETS_PATH,
+} = require("./../config/constant.js");
 
 // 线上资源根目录 命名一般为(public / static / assets)  / 必须存在 否则 hmr 将失效
 // const ASSETS_PATH = cdnConfig.host;
 
 const config = {
+	context: ROOT_PATH,
+	target: "web",
 	entry: {
 		app: SRC_PATH + "/app.js",
 		vendor: [
@@ -25,6 +36,8 @@ const config = {
 			"react-redux",
 			"axios",
 			"marked",
+			"styled-components",
+			"react-simplemde-editor",
 		],
 	},
 
@@ -46,11 +59,8 @@ const config = {
 			{
 				test: /\.jsx?$/,
 				exclude: /node_modules/,
-				loader: require.resolve("babel-loader"),
-				options: {
-					compact: true,
+				use: ["happypack/loader?id=babel"],
 				},
-			},
 			{
 				test: /\.css$/,
 				loader: ExtractTextPlugin.extract(
@@ -107,12 +117,28 @@ const config = {
 	},
 
 	plugins: [
+		new CleanWebpackPlugin([BUILD_PATH], {
+			root: ROOT_PATH,
+			verbose: true,
+			dry: false,
+		}),
+		new HappyPack({
+			id: "babel",
+			loaders: ["babel-loader?compact=true"]
+		}),
+		new ModuleConcatenationPlugin(),
+		// new DLLReferencePlugin({
+		// 	manifest: require(`${DLL_PATH}/dll-manifest.json`),
+		// }),
+		// new AddAssetsPlugin({
+		// 	filepath: DLL_PATH + "/dll.dll.js",
+		// 	includeSourcemap: false,
+		// }),
 		new webpack.DefinePlugin({
 			"process.env": {
 				NODE_ENV: JSON.stringify("production"),
 			},
 		}),
-		new CleanWebpackPlugin(["build"]),
 		new HtmlWebpackPlugin({
 			title: "cnode",
 			inject: true,
@@ -133,8 +159,7 @@ const config = {
 		}),
 		new HtmlWebpackPlugin({
 			template:
-				"!!ejs-compiled-loader!" +
-				path.join(SRC_PATH, "/server.template.ejs"),
+				"!!ejs-compiled-loader!" + path.join(SRC_PATH, "/server.template.ejs"),
 			filename: "server.ejs",
 			favicon: path.join(ROOT_PATH, "/cnode.ico"),
 		}),
