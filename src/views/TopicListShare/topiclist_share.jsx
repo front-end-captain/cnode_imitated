@@ -82,7 +82,7 @@ class TopicListShare extends Component {
 			return;
 		}
 		this.setState({ loading: true });
-		const type = this.type;
+		const { type } = this;
 		const page = 1;
 		const limit = this.LIMIT;
 		let res = null;
