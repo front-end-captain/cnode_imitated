@@ -8,8 +8,8 @@ const NameAllModulesPlugin = require("name-all-modules-plugin");
 const HappyPack = require("happypack");
 const ModuleConcatenationPlugin = require("webpack/lib/optimize/ModuleConcatenationPlugin");
 // const DLLReferencePlugin = require("webpack/lib/DllReferencePlugin");
-const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
-	.BundleAnalyzerPlugin;
+// const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
+	// .BundleAnalyzerPlugin;
 // const AddAssetsPlugin = require("add-asset-html-webpack-plugin");
 // const cdnConfig = require("./../config").cdn;
 const {
@@ -43,8 +43,8 @@ const config = {
 
 	output: {
 		path: BUILD_PATH,
-		filename: "[name]-[chunkhash:8].js",
-		// chunkFilename: '[name]-[hash:8].chunk.js',
+		filename: "[name]-[hash:8].js",
+		chunkFilename: '[name]-[chunkhash:8].chunk.js',
 		publicPath: ASSETS_PATH,
 	},
 
@@ -174,12 +174,13 @@ const config = {
 			},
 			sourceMap: true,
 		}),
+		// new webpack.optimize.CommonsChunkPlugin({
+		// 	name: "manifest",
+		// 	minChunks: Infinity,
+		// 	children: true,
+		// }),
 		new webpack.optimize.CommonsChunkPlugin({
 			name: "vendor",
-		}),
-		new webpack.optimize.CommonsChunkPlugin({
-			name: "manifest",
-			minChunks: Infinity,
 		}),
 		new webpack.NamedModulesPlugin(),
 		new NameAllModulesPlugin(),
@@ -197,7 +198,7 @@ const config = {
 			allChunks: true,
 		}),
 		new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
-		new BundleAnalyzerPlugin(),
+		// new BundleAnalyzerPlugin(),
 	],
 };
 

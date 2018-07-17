@@ -1,12 +1,9 @@
 import React, { Component } from "react";
-import { Switch, Route, Redirect } from "react-router-dom";
 
-import TopicList from "./views/TopicList/topic_list.jsx";
-import TopicDetail from "./views/TopicDetail/topic_detail.jsx";
 import Header from "./components/Header/header.jsx";
 import HelmetSection from "./components/Helmet/helmet.jsx";
-import Login from "./views/login/login.jsx";
-import Logout from "./views/logout/logout.jsx";
+// import DevRouter from "./router/route.dev.jsx";
+import ProdRouter from "./router/route.prod.jsx";
 
 class App extends Component {
 	constructor() {
@@ -23,25 +20,16 @@ class App extends Component {
 
 	render() {
 		const { hasError } = this.state;
+		// const env = process.env.NODE_ENV;
+		// const Router = env === "development" ? DevRouter : ProdRouter;
+		const Router = ProdRouter;
 		return hasError ? (
 			<div>404 error</div>
 		) : (
 			[
 				<Header key="header" />,
 				<HelmetSection key="helmetsection" />,
-				<Switch key="switch">
-					<Route
-						path="/"
-						exact
-						render={() => {
-							return <Redirect to="/list" />;
-						}}
-					/>
-					<Route path="/list" component={TopicList} />
-					<Route path="/detail/:id" component={TopicDetail} />
-					<Route path="/login" component={Login} />
-					<Route path="/logout" component={Logout} />
-				</Switch>,
+				<Router key="router" />,
 			]
 		);
 	}

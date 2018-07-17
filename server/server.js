@@ -5,6 +5,7 @@ const favicon = require("serve-favicon");
 const bodyParser = require("body-parser");
 const session = require("express-session");
 const chalk = require("chalk");
+const Loadable = require("react-loadable");
 const serverRender = require("./utils/serverRender.js");
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || "0.0.0.0";
@@ -73,11 +74,24 @@ app.use((error, request, response) => {
 	response.status(500).send(error);
 });
 
-const server = app.listen(PORT, HOST, () => {
-	let host = server.address().address;
-	let port = server.address().port;
-	console.log(
-		chalk.blue("The server is listening at http://%s:"),
-		chalk.red(host, port),
-	);
-});
+if (env === "production") {
+	Loadable.preloadAll().then(() => {
+		const server = app.listen(PORT, HOST, () => {
+			let host = server.address().address;
+			let port = server.address().port;
+			console.log(
+				chalk.blue("The server is listening at http://%s:"),
+				chalk.red(host, port),
+			);
+		});
+	});
+} else {
+	const server = app.listen(PORT, HOST, () => {
+		let host = server.address().address;
+		let port = server.address().port;
+		console.log(
+			chalk.blue("The server is listening at http://%s:"),
+			chalk.red(host, port),
+		);
+	});
+}
