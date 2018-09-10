@@ -1,3 +1,4 @@
+import "@babel/polyfill";
 import React from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter as Router } from "react-router-dom";
@@ -17,14 +18,13 @@ const env = process.env.NODE_ENV;
 const initialState = window.__INITIAL__STATE__ || {};
 
 // 只在开发环境下启用 redux-devtool
-const store =
-	env === "production"
-		? createStore(reducer, initialState, applyMiddleware(thunk))
-		: createStore(
-				reducer,
-				initialState,
-				composeWithDevTools(applyMiddleware(thunk)),
-			);
+const store = env === "production"
+	? createStore(reducer, initialState, applyMiddleware(thunk))
+	: createStore(
+			reducer,
+			initialState,
+			composeWithDevTools(applyMiddleware(thunk)),
+		);
 
 const root = document.getElementById("root");
 const render = (Component) => {

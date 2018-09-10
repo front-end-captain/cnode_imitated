@@ -139,7 +139,7 @@ class TopicDetail extends Component {
 		this.state = {
 			loadFail: false,
 			loading: false,
-			topicContent: null,
+			topicContent: {},
 			isCollected: false,
 		};
 
@@ -151,12 +151,14 @@ class TopicDetail extends Component {
 	}
 
 	componentDidMount() {
-		const { id } = this.props.match.params;
+		const { match } = this.props;
+		const { id } = match.params;
 		this.getArticleDetail(id);
 	}
 
 	// 获取话题详情内容
 	async getArticleDetail(id) {
+		const { saveCommentsOfTopic } = this.props;
 		this.setState({ loading: true });
 		let res = null;
 		try {
@@ -167,7 +169,7 @@ class TopicDetail extends Component {
 					loading: false,
 					isCollected: res.data.data.is_collect,
 				});
-				this.props.saveCommentsOfTopic(res.data.data.replies);
+				saveCommentsOfTopic(res.data.data.replies);
 			} else {
 				this.setState({ loadFail: true });
 			}
@@ -183,14 +185,16 @@ class TopicDetail extends Component {
 
 	// 收藏 / 取消收藏
 	handleCollect() {
+		const { user } = this.props;
+		const { topicContent, isCollected } = this.state;
 		// post /api/topic_collect/collect params: { accesstoken, topic_id }
-		if (!this.props.user.isAuth) {
+		if (!user.isAuth) {
 			message.warning("您还没有登录~");
 			return;
 		}
 
-		const { id } = this.state.topicContent;
-		if (this.state.isCollected) {
+		const { id } = topicContent;
+		if (isCollected) {
 			this.deCollectTopic(id);
 		} else {
 			this.collectTopic(id);
@@ -199,6 +203,7 @@ class TopicDetail extends Component {
 
 	async collectTopic(id) {
 		let res = null;
+		const { topicContent } = this.state;
 		try {
 			res = axios.post("/api/topic_collect/collect?needAccessToken=true", {
 				topic_id: id,
@@ -206,7 +211,7 @@ class TopicDetail extends Component {
 			if (res.status === 200 && res.data.success) {
 				// TODO: 收藏成功
 				this.setState({
-					topicContent: { ...this.state.topicContent, is_collect: true },
+					topicContent: { ...topicContent, is_collect: true },
 				});
 				message.success("已收藏");
 				this.setState({ isCollected: true });
@@ -223,6 +228,7 @@ class TopicDetail extends Component {
 
 	async deCollectTopic(id) {
 		let res = null;
+		const { topicContent } = this.state;
 		try {
 			res = axios.post("/api/topic_collect/de_collect?needAccessToken=true", {
 				topic_id: id,
@@ -230,7 +236,7 @@ class TopicDetail extends Component {
 			if (res.status === 200 && res.data.success) {
 				// 取消成功
 				this.setState({
-					topicContent: { ...this.state.topicContent, is_collect: false },
+					topicContent: { ...topicContent, is_collect: false },
 				});
 				message.success("取消成功");
 				this.setState({ isCollected: false });
@@ -246,14 +252,15 @@ class TopicDetail extends Component {
 	}
 
 	render() {
-		if (this.state.loadFail) {
+		const { loadFail, loading, topicContent, isCollected } = this.state;
+		if (loadFail) {
 			return (
 				<LoadingContainer>
 					<NoResult text="数据加载失败了" />
 				</LoadingContainer>
 			);
 		}
-		if (this.state.loading) {
+		if (loading) {
 			return (
 				<LoadingContainer>
 					<Loading />
@@ -261,7 +268,7 @@ class TopicDetail extends Component {
 			);
 		}
 
-		if (this.state.topicContent) {
+		if (topicContent) {
 			const {
 				top,
 				good,
@@ -273,7 +280,8 @@ class TopicDetail extends Component {
 				content,
 				tab,
 				id,
-			} = this.state.topicContent;
+			} = topicContent;
+			const { user } = this.props;
 
 			const renderTypeBtn = () => {
 				if (top) {
@@ -298,8 +306,8 @@ class TopicDetail extends Component {
 							&nbsp;{visit_count} 浏览 | 最后一次回复是{" "}
 							{moment(last_reply_at).fromNow()} | 来自于 {tab}
 						</p>
-						<button className="collect-btn" onClick={this.handleCollectWrapper}>
-							{this.state.isCollected ? "已收藏" : "收藏"}
+						<button type="button" className="collect-btn" onClick={this.handleCollectWrapper}>
+							{isCollected ? "已收藏" : "收藏"}
 						</button>
 					</div>
 					{/* 话题详情头部 结束 */}
@@ -322,7 +330,7 @@ class TopicDetail extends Component {
 							<span>发表评论</span>
 						</div>
 						<CustomEditor
-							isAuth={this.props.user.isAuth}
+							isAuth={user.isAuth}
 							isReply={false}
 							topicId={id}
 						/>

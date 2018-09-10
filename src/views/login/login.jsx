@@ -111,34 +111,36 @@ class Login extends Component {
 
 	async handleLogin() {
 		let res = null;
+		const { accessToken } = this.state;
+		const { setAuth, saveUserInfo } = this.props;
 		try {
-			res = await axios.post("/api/user/login", {
-				accessToken: this.state.accessToken,
-			});
+			res = await axios.post("/api/user/login", { accessToken });
 			if (res.status === 200 && res.data.success) {
-				this.props.saveUserInfo({
+				saveUserInfo({
 					loginname: res.data.data.loginname,
 					id: res.data.data.id,
 					avatar_url: res.data.data.avatar_url,
 				});
-				this.props.setAuth(true);
+				setAuth(true);
 				this.handleCancel();
 			} else {
-				this.props.setAuth(false);
+				setAuth(false);
 				this.setState({ loginFail: true });
 			}
 		} catch (error) {
 			console.log(error);
-			this.props.setAuth(false);
+			setAuth(false);
 			this.setState({ loginFail: true });
 		}
 	}
 
 	handleCancel() {
-		this.props.history.goBack();
+		const { history } = this.props;
+		history.goBack();
 	}
 
 	render() {
+		const { loginFail } = this.state;
 		return (
 			<LoginPage>
 				<div className="cover-layer" />
@@ -151,7 +153,7 @@ class Login extends Component {
 							return (this.input = input);
 						}}
 					/>
-					<span className="tip">{this.state.loginFail ? "登录失败" : ""}</span>
+					<span className="tip">{loginFail ? "登录失败" : ""}</span>
 					<button type="button" onClick={this.handleLogin}>
 						登&nbsp;&nbsp;录
 					</button>

@@ -37,8 +37,12 @@ class TopicListAll extends Component {
 		topicListAll: PropTypes.instanceOf(Array),
 		saveTopicListAll: PropTypes.instanceOf(Function),
 		changeTopicListAllPageIndex: PropTypes.instanceOf(Function),
-		topicListAllPageIndex: PropTypes.number,
+		topicListAllPageIndex: PropTypes.number.isRequired,
 	};
+
+	type = "";
+
+	LIMIT = 15;
 
 	constructor() {
 		super();
@@ -55,7 +59,8 @@ class TopicListAll extends Component {
 	}
 
 	componentDidMount() {
-		const type = this.props.location.pathname.split("/")[2];
+		const { location } = this.props;
+		const type = location.pathname.split("/")[2];
 		this.type = type;
 		this.getTopicListAll();
 	}
@@ -63,14 +68,15 @@ class TopicListAll extends Component {
 	async onPageNumChange(current, pageSize) {
 		this.setState({ loading: true });
 		const { type } = this;
+		const { saveTopicListAll, changeTopicListAllPageIndex } = this.props;
 		const page = current;
 		const limit = pageSize;
 		let res = null;
 		try {
 			res = await axios.get(`/api/topics?tab=${type}&page=${page}&limit=${limit}`);
 			if (res.status === 200 && res.data.success) {
-				this.props.saveTopicListAll(normalizeTopicList(res.data.data));
-				this.props.changeTopicListAllPageIndex(current);
+				saveTopicListAll(normalizeTopicList(res.data.data));
+				changeTopicListAllPageIndex(current);
 				this.setState({ loading: false });
 			} else {
 				this.setState({ loadFail: true });
@@ -82,7 +88,8 @@ class TopicListAll extends Component {
 	}
 
 	async getTopicListAll() {
-		if (this.props.topicListAll.length > 0) {
+		const { topicListAll, saveTopicListAll } = this.props;
+		if (topicListAll.length > 0) {
 			return;
 		}
 		this.setState({ loading: true });
@@ -95,7 +102,7 @@ class TopicListAll extends Component {
 			try {
 				res = await axios.get(`/api/topics?tab=${type}&page=${page}&limit=${limit}`);
 				if (res.status === 200 && res.data.success) {
-					this.props.saveTopicListAll(normalizeTopicList(res.data.data));
+					saveTopicListAll(normalizeTopicList(res.data.data));
 					this.setState({ loading: false });
 				} else {
 					this.setState({ loadFail: true });
@@ -107,18 +114,17 @@ class TopicListAll extends Component {
 		}
 	}
 
-	type = "";
-	LIMIT = 15;
-
 	render() {
-		if (this.state.loadFail) {
+		const { loadFail, loading } = this.state;
+		const { topicListAll, topicListAllPageIndex } = this.props;
+		if (loadFail) {
 			return (
 				<LoadingContainer>
 					<NoResult text="数据加载失败了" />
 				</LoadingContainer>
 			);
 		}
-		if (this.state.loading) {
+		if (loading) {
 			return (
 				<LoadingContainer>
 					<Loading />
@@ -126,11 +132,11 @@ class TopicListAll extends Component {
 			);
 		}
 		return [
-			<ListView key={1} dataList={this.props.topicListAll} />,
+			<ListView key={1} dataList={topicListAll} />,
 			<PaginationWrapper key={2}>
 				<Pagination
 					defaultPageSize={this.LIMIT}
-					defaultCurrent={this.props.topicListAllPageIndex}
+					defaultCurrent={topicListAllPageIndex}
 					total={96 * 20}
 					onChange={this.onPageNumChange}
 				/>

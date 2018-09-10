@@ -98,7 +98,7 @@ class CreateTopic extends Component {
 			newTopicContent: "",
 		};
 		this.handleSubmit = this.handleSubmit.bind(this);
-		this.createTocpic = this.createTocpic.bind(this);
+		this.createTopic = this.createTopic.bind(this);
 		this.handleTitleChange = this.handleTitleChange.bind(this);
 		this.handleSelectChange = this.handleSelectChange.bind(this);
 		this.handleChange = this.handleChange.bind(this);
@@ -114,14 +114,15 @@ class CreateTopic extends Component {
 	}
 
 	handleSubmit() {
-		if (!this.props.isAuth) {
+		const { isAuth } = this.props;
+		if (!isAuth) {
 			message.warning("请登录后在进行操作");
 			return;
 		}
 
 		const { title, tab, newTopicContent } = this.state;
 
-		if (!this.props.isAuth) {
+		if (!isAuth) {
 			message.warning("您还没有登录，登录后方可评论");
 			return;
 		}
@@ -144,10 +145,10 @@ class CreateTopic extends Component {
 			return;
 		}
 
-		this.createTocpic(title, tab, newTopicContent);
+		this.createTopic(title, tab, newTopicContent);
 	}
 
-	async createTocpic(title, tab, content) {
+	async createTopic(title, tab, content) {
 		let res = null;
 		try {
 			res = await axios.post("/api/topics?needAccessToken=true", {
@@ -175,14 +176,16 @@ class CreateTopic extends Component {
 	}
 
 	render() {
+		const { isAuth } = this.props;
+		const { newTopicContent, tab } = this.state;
 		const editorProps = {
 			id: "create-topic-editor",
 			onChange: this.handleChange,
-			value: this.state.newTopicContent,
+			value: newTopicContent,
 			options: {
 				spellcheck: false,
 				autosave: true,
-				placeholder: this.props.isAuth
+				placeholder: isAuth
 					? "输入话题内容..."
 					: "登录后才可以创建话题~",
 			},
@@ -199,7 +202,7 @@ class CreateTopic extends Component {
 							id="topic_title"
 							placeholder="帖子标题"
 							onChange={this.handleTitleChange}
-							disabled={!this.props.isAuth}
+							disabled={!isAuth}
 							ref={(input) => {
 								this.titleInput = input;
 							}}
@@ -212,7 +215,7 @@ class CreateTopic extends Component {
 						<select
 							id="tab_selected"
 							disabled
-							value={this.state.tab}
+							value={tab}
 							onChange={this.handleSelectChange}
 						>
 							<option value="share">分享</option>

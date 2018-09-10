@@ -140,7 +140,10 @@ function ListView({ dataList }) {
 								</a>
 							</div>
 							<div className="amount">
-								<span>{item.reply_count}/</span>
+								<span>
+									{item.reply_count}
+									{"/"}
+								</span>
 								<span>{item.visit_count}</span>
 							</div>
 							<div className="topic-type">{renderTypeBtnWrapper(item)}</div>

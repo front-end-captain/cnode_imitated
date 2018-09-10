@@ -12,5 +12,6 @@
 		"no-descending-specificity": null,
 		"comment-empty-line-before": null,
 		"selector-pseudo-element-colon-notation": "single",
+		"value-list-max-empty-lines": 0
 	}
 }

@@ -103,18 +103,21 @@ class Logout extends Component {
 	}
 
 	componentDidMount() {
-		if (!this.props.isAuth) {
-			this.props.history.replace("/list");
+		const { isAuth, history } = this.props;
+		if (!isAuth) {
+			history.replace("/list");
 		}
 	}
 
 	handleCancel() {
-		this.props.history.goBack();
+		const { history } = this.props;
+		history.goBack();
 	}
 
 	handleConfirm() {
-		this.props.clearUserInfo();
-		this.props.setAuth(false);
+		const { clearUserInfo, setAuth } = this.props;
+		clearUserInfo();
+		setAuth(false);
 		this.handleCancel();
 	}
 

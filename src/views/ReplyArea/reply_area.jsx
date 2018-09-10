@@ -85,17 +85,19 @@ const ReplyItem = styled.div`
 		transition: all 0.5s;
 	}
 `;
+/* eslint-disable arrow-parens */
+/* eslint-disable no-confusing-arrow */
 const TypeBtn = styled.span`
 	font-size: 12px;
 	padding: 1px 4px;
 	border-radius: 3px;
-	color: ${(props) => { return props.primary ? "#fff" : "#999"; }};
-	background-color: ${(props) => { return props.primary ? "#80bd01" : "#e5e5e5"; }};
+	color: ${(props) => props.primary ? "#fff" : "#999"};
+	background-color: ${(props) => props.primary ? "#80bd01" : "#e5e5e5"};
 `;
 
 /**
  * @description 获取元素节点的指定父节点
- * @param {DOMelement} element
+ * @param {DOMElement} element
  * @param {String} selector
  */
 const parents = (element, selector) => {
@@ -131,7 +133,11 @@ class ReplyArea extends Component {
 		author: PropTypes.instanceOf(Object).isRequired,
 		topicId: PropTypes.string.isRequired,
 		updateCommentsOfTopic: PropTypes.func.isRequired,
+		replies: PropTypes.instanceOf(Array).isRequired,
 	};
+
+	// 判断编辑器显示和隐藏的标志位
+	isEditorDisplay = false;
 
 	constructor() {
 		super();
@@ -147,21 +153,22 @@ class ReplyArea extends Component {
 
 	// 点赞
 	async handleLike(args) {
-		if (!this.props.user.isAuth) {
+		const { isAuth, user, comments, updateCommentsOfTopic } = this.props;
+		if (!isAuth) {
 			message.warning("请先登录");
 			return;
 		}
 
 		const loginname = args[1];
 
-		if (this.props.user.loginname === loginname) {
+		if (user.loginname === loginname) {
 			message.warning("不能自己给自己的评论点赞喔~");
 			return;
 		}
 
 		const replyId = args[0];
-		const userId = this.props.user.userInfo.id;
-		const replies = this.props.comments;
+		const userId = user.userInfo.id;
+		const replies = comments;
 		const targetReply = replies.find((item) => {
 			return item.id === replyId;
 		});
@@ -179,7 +186,7 @@ class ReplyArea extends Component {
 						}
 						return item;
 					});
-					this.props.updateCommentsOfTopic(newReplies);
+					updateCommentsOfTopic(newReplies);
 					message.success("点赞成功");
 				} else if (res.data.action === "down") {
 					// 取消点赞
@@ -193,7 +200,7 @@ class ReplyArea extends Component {
 						}
 						return item;
 					});
-					this.props.updateCommentsOfTopic(newReplies);
+					updateCommentsOfTopic(newReplies);
 					message.warning("取消点赞");
 				}
 			} else {
@@ -221,12 +228,8 @@ class ReplyArea extends Component {
 		}
 	}
 
-	// 判断编辑器显示和隐藏的标志位
-	isEditorDisplay = false;
-
 	render() {
-		const replies = this.props.comments || [];
-		const author = this.props.author;
+		const { replies = [], author, user, topicId } = this.props;
 
 		return (
 			<div className="topic-reply">
@@ -240,7 +243,7 @@ class ReplyArea extends Component {
 									<img src={item.author.avatar_url} alt={loginname} />
 								</a>
 								<p className="info">
-									<span className="loginname">{loginname}&nbsp;</span>
+									<span className="loginname">{loginname} </span>
 									{index + 1}楼 · {moment(item.create_at).fromNow()}
 									{loginname === author.loginname && (
 										<TypeBtn primary>作者</TypeBtn>
@@ -269,10 +272,10 @@ class ReplyArea extends Component {
 							</MarkdownContent>
 							<div className="editor-area">
 								<CustomEditor
-									isAuth={this.props.user.isAuth}
+									isAuth={user.isAuth}
 									toReplyUsername={loginname}
 									replyId={id}
-									topicId={this.props.topicId}
+									topicId={topicId}
 								/>
 							</div>
 						</ReplyItem>

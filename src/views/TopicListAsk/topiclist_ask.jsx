@@ -39,6 +39,10 @@ class TopicListAsk extends Component {
 		topicListAskPageIndex: PropTypes.number,
 	};
 
+	type = "";
+
+	LIMIT = 15;
+
 	constructor() {
 		super();
 		this.state = {
@@ -50,7 +54,8 @@ class TopicListAsk extends Component {
 	}
 
 	componentDidMount() {
-		const type = this.props.location.pathname.split("/")[2];
+		const { location } = this.props;
+		const type = location.pathname.split("/")[2];
 		this.type = type;
 		this.getTopicListAsk();
 	}
@@ -58,14 +63,15 @@ class TopicListAsk extends Component {
 	async onPageNumChange(current, pageSize) {
 		this.setState({ loading: true });
 		const { type } = this;
+		const { saveTopicListAsk, changeTopicListAskPageIndex } = this.props;
 		const page = current;
 		const limit = pageSize;
 		let res = null;
 		try {
 			res = await axios.get(`/api/topics?tab=${type}&page=${page}&limit=${limit}`);
 			if (res.status === 200 && res.data.success) {
-				this.props.saveTopicListAsk(normalizeTopicList(res.data.data));
-				this.props.changeTopicListAskPageIndex(current);
+				saveTopicListAsk(normalizeTopicList(res.data.data));
+				changeTopicListAskPageIndex(current);
 				this.setState({ loading: false });
 			} else {
 				this.setState({ loadFail: true });
@@ -77,7 +83,8 @@ class TopicListAsk extends Component {
 	}
 
 	async getTopicListAsk() {
-		if (this.props.topicListAsk.length > 0) {
+		const { topicListAsk, saveTopicListAsk } = this.props;
+		if (topicListAsk.length > 0) {
 			return;
 		}
 		this.setState({ loading: true });
@@ -88,7 +95,7 @@ class TopicListAsk extends Component {
 		try {
 			res = await axios.get(`/api/topics?tab=${type}&page=${page}&limit=${limit}`);
 			if (res.status === 200 && res.data.success) {
-				this.props.saveTopicListAsk(normalizeTopicList(res.data.data));
+				saveTopicListAsk(normalizeTopicList(res.data.data));
 				this.setState({ loading: false });
 			} else {
 				this.setState({ loadFail: true });
@@ -99,18 +106,17 @@ class TopicListAsk extends Component {
 		}
 	}
 
-	type = "";
-	LIMIT = 15;
-
 	render() {
-		if (this.state.loadFail) {
+		const { loadFail, loading } = this.state;
+		const { topicListAsk, topicListAskPageIndex } = this.props;
+		if (loadFail) {
 			return (
 				<LoadingContainer>
 					<NoResult text="数据加载失败" />
 				</LoadingContainer>
 			);
 		}
-		if (this.state.loading) {
+		if (loading) {
 			return (
 				<LoadingContainer>
 					<Loading />
@@ -118,11 +124,11 @@ class TopicListAsk extends Component {
 			);
 		}
 		return [
-			<ListView key={1} dataList={this.props.topicListAsk} />,
+			<ListView key={1} dataList={topicListAsk} />,
 			<PaginationWrapper key={2}>
 				<Pagination
 					defaultPageSize={this.LIMIT}
-					defaultCurrent={this.props.topicListAskPageIndex}
+					defaultCurrent={topicListAskPageIndex}
 					total={62 * 20}
 					onChange={this.onPageNumChange}
 				/>

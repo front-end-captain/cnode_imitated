@@ -54,6 +54,7 @@ class Header extends Component {
 	};
 
 	render() {
+		const { isAuth } = this.props;
 		return (
 			<HeaderSection>
 				<div className="header-wrapper">
@@ -77,8 +78,8 @@ class Header extends Component {
 						<NavLink to="/api">
 							<span>API</span>
 						</NavLink>
-						<NavLink to={this.props.isAuth ? "/logout" : "/login"}>
-							{this.props.isAuth ? <span>退出</span> : <span>登录</span>}
+						<NavLink to={isAuth ? "/logout" : "/login"}>
+							{isAuth ? <span>退出</span> : <span>登录</span>}
 						</NavLink>
 					</nav>
 				</div>

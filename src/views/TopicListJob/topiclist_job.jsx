@@ -38,6 +38,11 @@ class TopicListJob extends Component {
 		changeTopicListJobPageIndex: PropTypes.instanceOf(Function),
 		topicListJobPageIndex: PropTypes.number,
 	};
+
+	type = "";
+
+	LIMIT = 15;
+
 	constructor() {
 		super();
 		this.state = {
@@ -49,22 +54,23 @@ class TopicListJob extends Component {
 	}
 
 	componentDidMount() {
-		const type = this.props.location.pathname.split("/")[2];
+		const { location } = this.props;
+		const type = location.pathname.split("/")[2];
 		this.type = type;
 		this.getTopicListJob();
 	}
 
 	async onPageNumChange(current, pageSize) {
 		this.setState({ loading: true });
-		const type = this.type;
+		const { saveTopicListJob, changeTopicListJobPageIndex } = this.props;
 		const page = current;
 		const limit = pageSize;
 		let res = null;
 		try {
-			res = await axios.get(`/api/topics?tab=${type}&page=${page}&limit=${limit}`);
+			res = await axios.get(`/api/topics?tab=${this.type}&page=${page}&limit=${limit}`);
 			if (res.status === 200 && res.data.success) {
-				this.props.saveTopicListJob(normalizeTopicList(res.data.data));
-				this.props.changeTopicListJobPageIndex(current);
+				saveTopicListJob(normalizeTopicList(res.data.data));
+				changeTopicListJobPageIndex(current);
 				this.setState({ loading: false });
 			} else {
 				this.setState({ loadFail: true });
@@ -76,18 +82,18 @@ class TopicListJob extends Component {
 	}
 
 	async getTopicListJob() {
-		if (this.props.topicListJob.length > 0) {
+		const { topicListJob, saveTopicListJob } = this.props;
+		if (topicListJob.length > 0) {
 			return;
 		}
 		this.setState({ loading: true });
-		const type = this.type;
 		const page = 1;
 		const limit = this.LIMIT;
 		let res = null;
 		try {
-			res = await axios.get(`/api/topics?tab=${type}&page=${page}&limit=${limit}`);
+			res = await axios.get(`/api/topics?tab=${this.type}}&page=${page}&limit=${limit}`);
 			if (res.status === 200 && res.data.success) {
-				this.props.saveTopicListJob(normalizeTopicList(res.data.data));
+				saveTopicListJob(normalizeTopicList(res.data.data));
 				this.setState({ loading: false });
 			} else {
 				this.setState({ loadFail: true });
@@ -98,18 +104,17 @@ class TopicListJob extends Component {
 		}
 	}
 
-	type = "";
-	LIMIT = 15;
-
 	render() {
-		if (this.state.loadFail) {
+		const { loadFail, loading } = this.state;
+		const { topicListJob, topicListJobPageIndex } = this.props;
+		if (loadFail) {
 			return (
 				<LoadingContainer>
 					<NoResult text="数据加载失败" />
 				</LoadingContainer>
 			);
 		}
-		if (this.state.loading) {
+		if (loading) {
 			return (
 				<LoadingContainer>
 					<Loading />
@@ -117,11 +122,11 @@ class TopicListJob extends Component {
 			);
 		}
 		return [
-			<ListView key={1} dataList={this.props.topicListJob} />,
+			<ListView key={1} dataList={topicListJob} />,
 			<PaginationWrapper key={2}>
 				<Pagination
 					defaultPageSize={this.LIMIT}
-					defaultCurrent={this.props.topicListJobPageIndex}
+					defaultCurrent={topicListJobPageIndex}
 					total={11 * 20}
 					onChange={this.onPageNumChange}
 				/>

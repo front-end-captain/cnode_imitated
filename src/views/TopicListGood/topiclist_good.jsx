@@ -39,6 +39,10 @@ class TopicListGood extends Component {
 		topicListGoodPageIndex: PropTypes.number,
 	};
 
+	type = "";
+
+	LIMIT = 15;
+
 	constructor() {
 		super();
 		this.state = {
@@ -51,7 +55,8 @@ class TopicListGood extends Component {
 	}
 
 	componentDidMount() {
-		const type = this.props.location.pathname.split("/")[2];
+		const { location } = this.props;
+		const type = location.pathname.split("/")[2];
 		this.type = type;
 		this.getTopicListGood();
 	}
@@ -59,14 +64,15 @@ class TopicListGood extends Component {
 	async onPageNumChange(current, pageSize) {
 		this.setState({ loading: true });
 		const { type } = this;
+		const { saveTopicListGood, changeTopicListGoodPageIndex } = this.props;
 		const page = current;
 		const limit = pageSize;
 		let res = null;
 		try {
 			res = await axios.get(`/api/topics?tab=${type}&page=${page}&limit=${limit}`);
 			if (res.status === 200 && res.data.success) {
-				this.props.saveTopicListGood(normalizeTopicList(res.data.data));
-				this.props.changeTopicListGoodPageIndex(current);
+				saveTopicListGood(normalizeTopicList(res.data.data));
+				changeTopicListGoodPageIndex(current);
 				this.setState({ loading: false });
 			} else {
 				this.setState({ loadFail: true });
@@ -78,7 +84,8 @@ class TopicListGood extends Component {
 	}
 
 	async getTopicListGood() {
-		if (this.props.topicListGood.length > 0) {
+		const { topicListGood, saveTopicListGood } = this.props;
+		if (topicListGood.length > 0) {
 			return;
 		}
 		this.setState({ loading: true });
@@ -89,7 +96,7 @@ class TopicListGood extends Component {
 		try {
 			res = await axios.get(`/api/topics?tab=${type}&page=${page}&limit=${limit}`);
 			if (res.status === 200 && res.data.success) {
-				this.props.saveTopicListGood(normalizeTopicList(res.data.data));
+				saveTopicListGood(normalizeTopicList(res.data.data));
 				this.setState({ loading: false });
 			} else {
 				this.setState({ loadFail: true });
@@ -99,18 +106,17 @@ class TopicListGood extends Component {
 		}
 	}
 
-	type = "";
-	LIMIT = 15;
-
 	render() {
-		if (this.state.loadFail) {
+		const { loadFail, loading } = this.state;
+		const { topicListGood, topicListGoodPageIndex } = this.props;
+		if (loadFail) {
 			return (
 				<LoadingContainer>
 					<NoResult text="数据加载失败" />
 				</LoadingContainer>
 			);
 		}
-		if (this.state.loading) {
+		if (loading) {
 			return (
 				<LoadingContainer>
 					<Loading />
@@ -118,11 +124,11 @@ class TopicListGood extends Component {
 			);
 		}
 		return [
-			<ListView key={1} dataList={this.props.topicListGood} />,
+			<ListView key={1} dataList={topicListGood} />,
 			<PaginationWrapper key={2}>
 				<Pagination
 					defaultPageSize={this.LIMIT}
-					defaultCurrent={this.props.topicListGoodPageIndex}
+					defaultCurrent={topicListGoodPageIndex}
 					total={16 * 20}
 					onChange={this.onPageNumChange}
 				/>

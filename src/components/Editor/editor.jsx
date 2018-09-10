@@ -107,8 +107,9 @@ class CustomEditor extends Component {
 
 	// 提交评论或者回复的处理程序
 	handleSubmit() {
+		const { isAuth, topicId, replyId, isReply } = this.props;
 		// 登录状态判断
-		if (!this.props.isAuth) {
+		if (!isAuth) {
 			message.warning("请登录后再进行操作");
 			return;
 		}
@@ -124,9 +125,7 @@ class CustomEditor extends Component {
 		// 当前操作是评论 交给 postComment 函数处理
 		// 当前操作是回复 交给 postReply 函数处理
 
-		const { topicId, replyId } = this.props;
-
-		if (this.props.isReply) {
+		if (isReply) {
 			this.postReply(topicId, replyId, commentContent);
 		} else {
 			this.postComment(topicId, commentContent);
@@ -139,7 +138,8 @@ class CustomEditor extends Component {
 
 	async postComment(topicId, content) {
 		let res = null;
-		const { loginname, avatar_url } = this.props.userInfo;
+		const { userInfo, updateCommentsOfTopic } = this.props;
+		const { loginname, avatar_url } = userInfo;
 		try {
 			res = await axios.post(
 				`/api/topic/${topicId}/replies?needAccessToken=true`,
@@ -152,7 +152,7 @@ class CustomEditor extends Component {
 					avatar_url,
 					content,
 				);
-				this.props.updateCommentsOfTopic(newReply);
+				updateCommentsOfTopic(newReply);
 				message.success("评论成功");
 			} else {
 				message.warning("评论失败");
@@ -168,8 +168,8 @@ class CustomEditor extends Component {
 
 	async postReply(topicId, replyId, content) {
 		let res = null;
-		const replyUserName = this.props.toReplyUsername;
-		const { loginname, avatar_url } = this.props.userInfo;
+		const { userInfo, updateCommentsOfTopic, toReplyUsername: replyUserName } = this.props;
+		const { loginname, avatar_url } = userInfo;
 		const reply_id = replyId;
 		const newContent = `@${replyUserName} ${content}`;
 		const mockContent = `<a href='/user/${replyUserName}'>@${replyUserName}</a> ${content}`;
@@ -186,7 +186,7 @@ class CustomEditor extends Component {
 					mockContent,
 					reply_id,
 				);
-				this.props.updateCommentsOfTopic(newReply);
+				updateCommentsOfTopic(newReply);
 				message.success("回复成功");
 			} else {
 				message.warning("回复失败");
@@ -204,17 +204,18 @@ class CustomEditor extends Component {
 	// 创建编辑器初始占位内容
 	createEditorPlaceholder() {
 		let placeholderText = "";
+		const { isAuth, isReply, toReplyUsername } = this.props;
 
 		/* eslint-disable no-lonely-if */
-		if (!this.props.isAuth) {
-			if (this.props.isReply) {
+		if (!isAuth) {
+			if (isReply) {
 				placeholderText = "请登录后再来回复~";
 			} else {
 				placeholderText = "请登录后再来评论~";
 			}
 		} else {
-			if (this.props.isReply) {
-				placeholderText = `@${this.props.toReplyUsername}`;
+			if (isReply) {
+				placeholderText = `@${toReplyUsername}`;
 			} else {
 				placeholderText = "请输入您的评论内容~";
 			}
@@ -228,11 +229,12 @@ class CustomEditor extends Component {
 	}
 
 	render() {
-		const editoId = `editor_${Math.random().toFixed(2)}`;
+		const editorId = `editor_${Math.random().toFixed(2)}`;
+		const { isReply } = this.props;
 
 		// 编辑器配置项
 		const editorOptions = {
-			id: editoId,
+			id: editorId,
 			onChange: this.handleEditorContentChange,
 			options: {
 				placeholder: this.createEditorPlaceholder(),
@@ -240,7 +242,7 @@ class CustomEditor extends Component {
 		};
 
 		return (
-			<EditorWrapper className="editor-wrapper" reply={this.props.isReply}>
+			<EditorWrapper className="editor-wrapper" reply={isReply}>
 				<ReactSimpleMde
 					{...editorOptions}
 					ref={(editor) => {
@@ -248,7 +250,7 @@ class CustomEditor extends Component {
 					}}
 				/>
 				<div className="submit-btn" onClick={this.handleSubmitWrapper}>
-					{this.props.isReply ? "回复" : "评论"}
+					{isReply ? "回复" : "评论"}
 				</div>
 			</EditorWrapper>
 		);

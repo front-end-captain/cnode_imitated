@@ -39,6 +39,10 @@ class TopicListShare extends Component {
 		topicListSharePageIndex: PropTypes.number,
 	};
 
+	type = "";
+
+	LIMIT = 15;
+
 	constructor() {
 		super();
 		this.state = {
@@ -51,22 +55,23 @@ class TopicListShare extends Component {
 	}
 
 	componentDidMount() {
-		const type = this.props.location.pathname.split("/")[2];
+		const { location } = this.props;
+		const type = location.pathname.split("/")[2];
 		this.type = type;
 		this.getTopicListShare();
 	}
 
 	async onPageNumChange(current, pageSize) {
 		this.setState({ loading: true });
-		const { type } = this;
+		const { saveTopicListShare, changeTopicListSharePageIndex } = this.props;
 		const page = current;
 		const limit = pageSize;
 		let res = null;
 		try {
-			res = await axios.get(`/api/topics?tab=${type}&page=${page}&limit=${limit}`);
+			res = await axios.get(`/api/topics?tab=${this.type}&page=${page}&limit=${limit}`);
 			if (res.status === 200 && res.data.success) {
-				this.props.saveTopicListShare(normalizeTopicList(res.data.data));
-				this.props.changeTopicListSharePageIndex(current);
+				saveTopicListShare(normalizeTopicList(res.data.data));
+				changeTopicListSharePageIndex(current);
 				this.setState({ loading: false });
 			} else {
 				this.setState({ loadFail: true });
@@ -78,7 +83,8 @@ class TopicListShare extends Component {
 	}
 
 	async getTopicListShare() {
-		if (this.props.topicListShare.length > 0) {
+		const { topicListShare, saveTopicListShare } = this.props;
+		if (topicListShare.length > 0) {
 			return;
 		}
 		this.setState({ loading: true });
@@ -89,7 +95,7 @@ class TopicListShare extends Component {
 		try {
 			res = await axios.get(`/api/topics?tab=${type}&page=${page}&limit=${limit}`);
 			if (res.status === 200 && res.data.success) {
-				this.props.saveTopicListShare(normalizeTopicList(res.data.data));
+				saveTopicListShare(normalizeTopicList(res.data.data));
 				this.setState({ loading: false });
 			} else {
 				this.setState({ loadFail: true });
@@ -100,18 +106,17 @@ class TopicListShare extends Component {
 		}
 	}
 
-	type = "";
-	LIMIT = 15;
-
 	render() {
-		if (this.state.loadFail) {
+		const { loading, loadFail } = this.state;
+		const { topicListShare, topicListSharePageIndex } = this.props;
+		if (loadFail) {
 			return (
 				<LoadingContainer>
 					<NoResult text="数据加载失败" />
 				</LoadingContainer>
 			);
 		}
-		if (this.state.loading) {
+		if (loading) {
 			return (
 				<LoadingContainer>
 					<Loading />
@@ -119,11 +124,11 @@ class TopicListShare extends Component {
 			);
 		}
 		return [
-			<ListView key={1} dataList={this.props.topicListShare} />,
+			<ListView key={1} dataList={topicListShare} />,
 			<PaginationWrapper key={2}>
 				<Pagination
 					defaultPageSize={this.LIMIT}
-					defaultCurrent={this.props.topicListSharePageIndex}
+					defaultCurrent={topicListSharePageIndex}
 					total={16 * 20}
 					onChange={this.onPageNumChange}
 				/>

@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CleanWebpackPlugin = require("clean-webpack-plugin");
 const webpack = require("webpack");
 const autoprefixer = require("autoprefixer");
-const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const {
 	SRC_PATH,
 	BUILD_PATH,
@@ -13,6 +13,8 @@ const {
 
 const config = {
 	devtool: "cheap-module-source-map",
+
+	mode: "development",
 
 	// 依赖入口文件 使用 react-hot-loader 启用 HMR
 	entry: {
@@ -46,6 +48,7 @@ const config = {
 			},
 			{
 				test: /\.jsx?$/,
+				include: SRC_PATH,
 				exclude: /node_modules/,
 				loader: require.resolve("babel-loader"),
 				options: {
@@ -61,44 +64,43 @@ const config = {
 			// 同时启用 sourceMap 方便调试 css 代码
 			{
 				test: /\.css$/,
-				loader: ExtractTextPlugin.extract(
-					Object.assign({
-						fallback: {
-							loader: require.resolve("style-loader"),
-							options: {
-								sourceMap: true,
-							},
+				use: [
+					{
+						loader: "css-hot-loader",
+					},
+					{
+						loader: MiniCssExtractPlugin.loader,
+					},
+					{
+						loader: require.resolve("css-loader"),
+						options: {
+							importLoaders: 1,
+							sourceMap: true,
+							// 确保 css 生效，所有生成的 css 类名保持原有类名
+							// 使用其他标识模板或者无此配置项 css 样式将无效!!!
+							localIdentName: "[local]",
 						},
-						use: [
-							{
-								loader: require.resolve("css-loader"),
-								options: {
-									importLoaders: 1,
-									sourceMap: true,
-								},
-							},
-							{
-								loader: require.resolve("postcss-loader"),
-								options: {
-									ident: "postcss",
-									sourceMap: true,
-									plugins: () => [
-										require("postcss-flexbugs-fixes"),
-										autoprefixer({
-											browsers: [
-												">1%",
-												"last 4 versions",
-												"Firefox ESR",
-												"not ie < 9", // React doesn't support IE8 anyway
-											],
-											flexbox: "no-2009",
-										}),
+					},
+					{
+						loader: require.resolve("postcss-loader"),
+						options: {
+							ident: "postcss",
+							sourceMap: true,
+							plugins: () => [
+								require("postcss-flexbugs-fixes"),
+								autoprefixer({
+									browsers: [
+										">1%",
+										"last 4 versions",
+										"Firefox ESR",
+										"not ie < 9", // React doesn't support IE8 anyway
 									],
-								},
-							},
-						],
-					}),
-				),
+									flexbox: "no-2009",
+								}),
+							],
+						},
+					},
+				],
 			},
 			{
 				test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
@@ -130,11 +132,6 @@ const config = {
 	},
 
 	plugins: [
-		new webpack.DefinePlugin({
-			"process.env": {
-				NODE_ENV: JSON.stringify("development"),
-			},
-		}),
 		// 开发环境下仍然清除 build 目录 防止浏览器请求 build 目录下过期的文件
 		// dev-server 会检测计算机硬盘上的打包后的目录
 		// 若是存在打包后的目录文件夹
@@ -158,10 +155,9 @@ const config = {
 			filename: "server.ejs",
 			favicon: path.join(ROOT_PATH, "/cnode.ico"),
 		}),
-		new ExtractTextPlugin({
-			filename: "[name]-[contenthash:5].css",
-			ignoreOrder: true,
-			allChunks: true,
+		new MiniCssExtractPlugin({
+			filename: "[name].css",
+			chunkFilename: "[id].css",
 		}),
 		new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
 		new webpack.NamedModulesPlugin(),

@@ -39,6 +39,10 @@ class TopicListShare extends Component {
 		topicListTestPageIndex: PropTypes.number,
 	};
 
+	type = "";
+
+	LIMIT = 15;
+
 	constructor() {
 		super();
 		this.state = {
@@ -51,22 +55,23 @@ class TopicListShare extends Component {
 	}
 
 	componentDidMount() {
-		const type = this.props.location.pathname.split("/")[2];
+		const { location } = this.props;
+		const type = location.pathname.split("/")[2];
 		this.type = type;
 		this.getTopicListTest();
 	}
 
 	async onPageNumChange(current, pageSize) {
 		this.setState({ loading: true });
-		const { type } = this;
+		const { saveTopicListTest, changeTopicListTestPageIndex } = this.props;
 		const page = current;
 		const limit = pageSize;
 		let res = null;
 		try {
-			res = await axios.get(`/api/topics?tab=${type}&page=${page}&limit=${limit}`);
+			res = await axios.get(`/api/topics?tab=${this.type}&page=${page}&limit=${limit}`);
 			if (res.status === 200 && res.data.success) {
-				this.props.saveTopicListTest(normalizeTopicList(res.data.data));
-				this.props.changeTopicListTestPageIndex(current);
+				saveTopicListTest(normalizeTopicList(res.data.data));
+				changeTopicListTestPageIndex(current);
 				this.setState({ loading: false });
 			} else {
 				this.setState({ loadFail: true });
@@ -78,18 +83,18 @@ class TopicListShare extends Component {
 	}
 
 	async getTopicListTest() {
-		if (this.props.topicListTest.length > 0) {
+		const { topicListTest, saveTopicListTest } = this.props;
+		if (topicListTest.length > 0) {
 			return;
 		}
 		this.setState({ loading: true });
-		const { type } = this;
 		const page = 1;
 		const limit = this.LIMIT;
 		let res = null;
 		try {
-			res = await axios.get(`/api/topics?tab=${type}&page=${page}&limit=${limit}`);
+			res = await axios.get(`/api/topics?tab=${this.type}&page=${page}&limit=${limit}`);
 			if (res.status === 200 && res.data.success) {
-				this.props.saveTopicListTest(normalizeTopicList(res.data.data));
+				saveTopicListTest(normalizeTopicList(res.data.data));
 				this.setState({ loading: false });
 			} else {
 				this.setState({ loadFail: true });
@@ -100,18 +105,17 @@ class TopicListShare extends Component {
 		}
 	}
 
-	type = "";
-	LIMIT = 15;
-
 	render() {
-		if (this.state.loadFail) {
+		const { loadFail, loading } = this.state;
+		const { topicListTest, topicListTestPageIndex } = this.props;
+		if (loadFail) {
 			return (
 				<LoadingContainer>
 					<NoResult text="数据加载失败" />
 				</LoadingContainer>
 			);
 		}
-		if (this.state.loading) {
+		if (loading) {
 			return (
 				<LoadingContainer>
 					<Loading />
@@ -119,11 +123,11 @@ class TopicListShare extends Component {
 			);
 		}
 		return [
-			<ListView key={1} dataList={this.props.topicListTest} />,
+			<ListView key={1} dataList={topicListTest} />,
 			<PaginationWrapper key={2}>
 				<Pagination
 					defaultPageSize={this.LIMIT}
-					defaultCurrent={this.props.topicListTestPageIndex}
+					defaultCurrent={topicListTestPageIndex}
 					total={16 * 20}
 					onChange={this.onPageNumChange}
 				/>
