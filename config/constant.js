@@ -10,4 +10,17 @@ const DLL_PATH = path.join(ROOT_PATH, "/dll");
 
 const ASSETS_PATH = "/assets/";
 
-module.exports = { ROOT_PATH, SRC_PATH, BUILD_PATH, ASSETS_PATH, DLL_PATH };
+const VENDORS = [
+	"react",
+	"react-dom",
+	"react-router",
+	"react-router-dom",
+	"redux",
+	"react-redux",
+	"axios",
+	"marked",
+	"styled-components",
+	"react-simplemde-editor",
+];
+
+module.exports = { ROOT_PATH, SRC_PATH, BUILD_PATH, ASSETS_PATH, DLL_PATH, VENDORS };

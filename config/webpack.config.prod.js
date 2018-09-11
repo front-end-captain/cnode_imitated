@@ -7,13 +7,14 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const NameAllModulesPlugin = require("name-all-modules-plugin");
 const HappyPack = require("happypack");
 const ModuleConcatenationPlugin = require("webpack/lib/optimize/ModuleConcatenationPlugin");
-const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
+// const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 // const cdnConfig = require("./../config").cdn;
 const {
 	ROOT_PATH,
 	SRC_PATH,
 	BUILD_PATH,
 	ASSETS_PATH,
+	VENDORS,
 } = require("./../config/constant.js");
 
 // 线上资源根目录 命名一般为(public / static / assets)  / 必须存在 否则 hmr 将失效
@@ -25,18 +26,7 @@ const config = {
 	target: "web",
 	entry: {
 		app: SRC_PATH + "/app.js",
-		vendor: [
-			"react",
-			"react-dom",
-			"react-router",
-			"react-router-dom",
-			"redux",
-			"react-redux",
-			"axios",
-			"marked",
-			"styled-components",
-			"react-simplemde-editor",
-		],
+		vendor: VENDORS,
 	},
 
 	output: {
@@ -112,11 +102,20 @@ const config = {
 	optimization: {
 		splitChunks: {
 			cacheGroups: {
+				// 项目公共组件
+				common: {
+					chunks: "initial",
+					name: "common",
+					minChunks: 2,
+					maxInitialRequests: 5,
+					minSize: 0,
+				},
 				vendors: {
-					name: "vendors",
 					test: /[\\/]node_modules[\\/]/,
 					chunks: "initial",
-					priority: -10,
+					name: "vendors",
+					priority: 10,
+					enforce: true,
 				},
 				// 将每一个入口抽取的单独的 css 文件合成一个 chunk
 				style: {
@@ -186,7 +185,7 @@ const config = {
 			chunkFilename: "[id]-[hash:5].css",
 		}),
 		new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
-		new BundleAnalyzerPlugin(),
+		// new BundleAnalyzerPlugin(),
 	],
 };
 

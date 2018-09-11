@@ -7,7 +7,8 @@ const {
 
 module.exports = {
 	context: ROOT_PATH,
-	mode: process.env.NODE_ENV,
+	// 永远为开发模式 不对任何的 bundle 进行分割
+	mode: "development",
 	target: "node",
 
 	entry: {
