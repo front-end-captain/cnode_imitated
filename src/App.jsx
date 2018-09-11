@@ -2,11 +2,7 @@ import React, { Component } from "react";
 
 import Header from "./components/Header/header.jsx";
 import HelmetSection from "./components/Helmet/helmet.jsx";
-import DevRouter from "./router/route.dev.jsx";
-import ProdRouter from "./router/route.prod.jsx";
-
-const env = process.env.NODE_ENV;
-const Router = env === "development" ? DevRouter : ProdRouter;
+import Router from "./router/index.js";
 
 class App extends Component {
 	constructor() {

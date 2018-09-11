@@ -26,11 +26,6 @@ const config = {
 
 		filename: "[name]-[hash:8].js",
 
-		// 非入口 chunk 文件的名称
-		// 这些文件需要在 runtime 时根据 chunk 发送的请求去生成
-		// 常用于代码拆分的 dynamic import
-		// chunkFilename: "[name]-[hash:8].chunk.js",
-
 		// publicPath 为项目发布到线上所有资源的 URL 前缀， 为 String 类型
 		// publicPath: '/assets/'     // 放到制定目录下
 		// publicPath: ''             // 放到根目录下

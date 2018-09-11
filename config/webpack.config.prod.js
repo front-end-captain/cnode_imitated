@@ -3,14 +3,11 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CleanWebpackPlugin = require("clean-webpack-plugin");
 const webpack = require("webpack");
 const autoprefixer = require("autoprefixer");
-const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const NameAllModulesPlugin = require("name-all-modules-plugin");
 const HappyPack = require("happypack");
 const ModuleConcatenationPlugin = require("webpack/lib/optimize/ModuleConcatenationPlugin");
-// const DLLReferencePlugin = require("webpack/lib/DllReferencePlugin");
-// const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
-	// .BundleAnalyzerPlugin;
-// const AddAssetsPlugin = require("add-asset-html-webpack-plugin");
+const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 // const cdnConfig = require("./../config").cdn;
 const {
 	ROOT_PATH,
@@ -23,6 +20,7 @@ const {
 // const ASSETS_PATH = cdnConfig.host;
 
 const config = {
+	mode: "production",
 	context: ROOT_PATH,
 	target: "web",
 	entry: {
@@ -44,7 +42,7 @@ const config = {
 	output: {
 		path: BUILD_PATH,
 		filename: "[name]-[hash:8].js",
-		chunkFilename: '[name]-[chunkhash:8].chunk.js',
+		chunkFilename: "[name]-[chunkhash:8].chunk.js",
 		publicPath: ASSETS_PATH,
 	},
 
@@ -60,50 +58,38 @@ const config = {
 				test: /\.jsx?$/,
 				exclude: /node_modules/,
 				use: ["happypack/loader?id=babel"],
-				},
+			},
 			{
 				test: /\.css$/,
-				loader: ExtractTextPlugin.extract(
-					Object.assign(
-						{
-							fallback: {
-								loader: require.resolve("style-loader"),
-								options: {
-									hmr: false,
-								},
-							},
-							use: [
-								{
-									loader: "css-loader",
-									options: {
-										importLoaders: 1,
-										minimize: true,
-										sourceMap: false,
-									},
-								},
-								{
-									loader: "postcss-loader",
-									options: {
-										ident: "postcss",
-										plugins: () => [
-											require("postcss-flexbugs-fixes"),
-											autoprefixer({
-												browsers: [
-													">1%",
-													"last 4 versions",
-													"Firefox ESR",
-													"not ie < 9", // React doesn't support IE8 anyway
-												],
-												flexbox: "no-2009",
-											}),
-										],
-									},
-								},
+				use: [
+					{
+						loader: MiniCssExtractPlugin.loader,
+					},
+					{
+						loader: require.resolve("css-loader"),
+						options: {
+							hmr: false,
+						},
+					},
+					{
+						loader: "postcss-loader",
+						options: {
+							ident: "postcss",
+							plugins: () => [
+								require("postcss-flexbugs-fixes"),
+								autoprefixer({
+									browsers: [
+										">1%",
+										"last 4 versions",
+										"Firefox ESR",
+										"not ie < 9",
+									],
+									flexbox: "no-2009",
+								}),
 							],
 						},
-						{},
-					),
-				),
+					},
+				],
 			},
 			{
 				test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
@@ -116,6 +102,36 @@ const config = {
 		],
 	},
 
+	/**
+	 * 为 vendor 单独打包（第三方库或者基础组件库）
+	 * 为 runTime 的代码单独打包
+	 * 为不同入口的公共代码打一个包
+	 * 为异步加载的代码打一个包
+	 */
+
+	optimization: {
+		splitChunks: {
+			cacheGroups: {
+				vendors: {
+					name: "vendors",
+					test: /[\\/]node_modules[\\/]/,
+					chunks: "initial",
+					priority: -10,
+				},
+				// 将每一个入口抽取的单独的 css 文件合成一个 chunk
+				style: {
+					test: /\.css$/,
+					name: "style",
+					chunks: "all",
+				},
+			},
+		},
+		runtimeChunk: {
+			name: "manifest",
+		},
+		nodeEnv: "production",
+	},
+
 	plugins: [
 		new CleanWebpackPlugin([BUILD_PATH], {
 			root: ROOT_PATH,
@@ -124,16 +140,9 @@ const config = {
 		}),
 		new HappyPack({
 			id: "babel",
-			loaders: ["babel-loader?compact=true"]
+			loaders: ["babel-loader?compact=true"],
 		}),
 		new ModuleConcatenationPlugin(),
-		// new DLLReferencePlugin({
-		// 	manifest: require(`${DLL_PATH}/dll-manifest.json`),
-		// }),
-		// new AddAssetsPlugin({
-		// 	filepath: DLL_PATH + "/dll.dll.js",
-		// 	includeSourcemap: false,
-		// }),
 		new webpack.DefinePlugin({
 			"process.env": {
 				NODE_ENV: JSON.stringify("production"),
@@ -163,26 +172,6 @@ const config = {
 			filename: "server.ejs",
 			favicon: path.join(ROOT_PATH, "/cnode.ico"),
 		}),
-		new webpack.optimize.UglifyJsPlugin({
-			compress: {
-				warnings: false,
-				comparisons: false,
-			},
-			output: {
-				comments: false,
-				ascii_only: true,
-			},
-			sourceMap: true,
-		}),
-		// new webpack.optimize.CommonsChunkPlugin({
-		// 	name: "manifest",
-		// 	minChunks: Infinity,
-		// 	children: true,
-		// }),
-		new webpack.optimize.CommonsChunkPlugin({
-			name: "vendor",
-		}),
-		new webpack.NamedModulesPlugin(),
 		new NameAllModulesPlugin(),
 		new webpack.NamedChunksPlugin((chunk) => {
 			if (chunk.name) {
@@ -192,13 +181,12 @@ const config = {
 				.mapModules((m) => path.relative(m.context, m.request))
 				.join("_");
 		}),
-		new ExtractTextPlugin({
-			filename: "[name]-[contenthash:5].css",
-			ignoreOrder: true,
-			allChunks: true,
+		new MiniCssExtractPlugin({
+			filename: "[name]-[hash:5].css",
+			chunkFilename: "[id]-[hash:5].css",
 		}),
 		new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
-		// new BundleAnalyzerPlugin(),
+		new BundleAnalyzerPlugin(),
 	],
 };
 
