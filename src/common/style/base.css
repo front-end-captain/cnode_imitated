@@ -7,3 +7,6 @@ body, html {
 	min-width: 1100px;
 	overflow: auto;
 }
+#root {
+	background: #e1e1e1;
+}

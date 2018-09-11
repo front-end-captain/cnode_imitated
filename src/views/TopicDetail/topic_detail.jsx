@@ -268,7 +268,7 @@ class TopicDetail extends Component {
 			);
 		}
 
-		if (topicContent) {
+		if (Object.keys(topicContent).length > 0) {
 			const {
 				top,
 				good,
@@ -280,6 +280,7 @@ class TopicDetail extends Component {
 				content,
 				tab,
 				id,
+				replies,
 			} = topicContent;
 			const { user } = this.props;
 
@@ -322,7 +323,7 @@ class TopicDetail extends Component {
 					{/* 话题详情内容 结束 */}
 
 					{/* 话题详情回复 开始 */}
-					<ReplyArea author={author} topicId={id} />
+					<ReplyArea author={author} topicId={id} replies={replies} />
 					{/* 话题详情回复 结束 */}
 
 					<div className="publish-comment-area">
