@@ -1,6 +1,7 @@
 /**
  * 开发环境下的服务端渲染
  */
+require("@babel/polyfill");
 require("es6-promise").polyfill();
 const path = require("path");
 const fetch = require("isomorphic-fetch");

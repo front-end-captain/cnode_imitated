@@ -234,7 +234,7 @@ class ReplyArea extends Component {
 		return (
 			<div className="topic-reply">
 				{replies.map((item, index) => {
-					const id = item.id;
+					const { id } = item;
 					const loginname = item.author.loginname;
 					return (
 						<ReplyItem key={id} className="reply-item">

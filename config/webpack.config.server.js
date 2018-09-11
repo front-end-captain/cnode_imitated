@@ -7,6 +7,7 @@ const {
 
 module.exports = {
 	context: ROOT_PATH,
+	mode: "development",
 	target: "node",
 
 	entry: {

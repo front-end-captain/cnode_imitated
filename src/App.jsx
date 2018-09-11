@@ -2,8 +2,11 @@ import React, { Component } from "react";
 
 import Header from "./components/Header/header.jsx";
 import HelmetSection from "./components/Helmet/helmet.jsx";
-// import DevRouter from "./router/route.dev.jsx";
+import DevRouter from "./router/route.dev.jsx";
 import ProdRouter from "./router/route.prod.jsx";
+
+const env = process.env.NODE_ENV;
+const Router = env === "development" ? DevRouter : ProdRouter;
 
 class App extends Component {
 	constructor() {
@@ -20,9 +23,6 @@ class App extends Component {
 
 	render() {
 		const { hasError } = this.state;
-		// const env = process.env.NODE_ENV;
-		// const Router = env === "development" ? DevRouter : ProdRouter;
-		const Router = ProdRouter;
 		return hasError ? (
 			<div>404 error</div>
 		) : (
