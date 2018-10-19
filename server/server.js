@@ -80,8 +80,7 @@ if (env === "production") {
 			let host = server.address().address;
 			let port = server.address().port;
 			console.log(
-				chalk.blue("The server is listening at http://%s:"),
-				chalk.red(host, port),
+				chalk.blue(`The server is listening at http://${host}:${port}`),
 			);
 		});
 	});
@@ -90,8 +89,7 @@ if (env === "production") {
 		let host = server.address().address;
 		let port = server.address().port;
 		console.log(
-			chalk.blue("The server is listening at http://%s:"),
-			chalk.red(host, port),
+			chalk.blue(`The server is listening at http://${host}:${port}`),
 		);
 	});
 }

@@ -9,6 +9,8 @@
 		"build:dll": "cross-env NODE_ENV=production webpack --config config/webpack.config.dll.js",
 		"dev:client": "cross-env NODE_ENV=development webpack-dev-server --config config/webpack.config.dev.js",
 		"dev:server": "cross-env NODE_ENV=development nodemon server/server.js",
+		"dev:server:debug": "cross-env NODE_ENV=development node --inspect-brk=9229 server/server.js",
+		"pro:server:debug": "cross-env NODE_ENV=production node --inspect-brk=9229 server/server.js",
 		"upload": "node config/upload.js",
 		"deploy": "npm run build && npm run upload",
 		"build": "npm run build:client && npm run build:server",

@@ -1,5 +1,5 @@
 /**
- * 		action types
+ * action types
  */
 
 const SAVE_TOPICLIST_ALL = "SAVE_TOPICLIST_ALL";
